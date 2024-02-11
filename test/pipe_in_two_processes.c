@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   fork_pipe.c                                        :+:      :+:    :+:   */
+/*   pipe_in_two_processes.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 23:36:34 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/11 00:05:15 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/11 15:49:27 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,6 @@ int main()
 	{
 		close(fd[0]);			// Fecha o fd de leitura pq não precisa aqui
 		int x = 1503;
-		// sleep(5);
 		write(fd[1], &x, sizeof(int));
 		close(fd[1]);			// Depois de escrever fecha o fd
 	}
@@ -44,7 +43,7 @@ int main()
 		close(fd[0]);			// Depois de ler fecha o fd
 		printf("O número é: %d\n", y);
 	}
-	printf("Acabou - %d\n", pid);
+	printf("Acabou - pid: %d\n", pid);
 
 	return (0);
 }
