@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/12 13:27:12 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/12 19:43:27 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ int main(int argc, char *argv[], char *envp[])
 	int	fd_file_out;
 	int	fd[2];
 	int	pid[2];
+	int	error_code;
 
 	if (argc != 5)
 	{
@@ -39,8 +40,6 @@ int main(int argc, char *argv[], char *envp[])
 
 	if (fd_file_out < 0)
 		perror("Output file error");
-
-	printf("%d %d\n", access(argv[2], F_OK | X_OK), access(argv[3], F_OK | X_OK));
 
 	pipe(fd);
 	pid[0] = fork();
@@ -65,8 +64,17 @@ int main(int argc, char *argv[], char *envp[])
 
 		if (!(fd_file_in < 0) && !(fd_file_out < 0) && access(argv[2], F_OK | X_OK) == 0)
 			execve(argv[2], args, envp);
-		write(2, "Deu ruim 1\n", 11);
-		exit(2);
+
+		if (fd_file_in < 0 || fd_file_out < 0)
+			error_code = 1;
+		else if (access(argv[2], F_OK))
+			error_code = 127;
+		else
+			error_code = 126;
+
+		// write(2, "Deu ruim 1\n", 11);
+		perror("Commmand 1");
+		exit(error_code);
 	}
 
 	pid[1] = fork();
@@ -91,8 +99,17 @@ int main(int argc, char *argv[], char *envp[])
 
 		if (!(fd_file_in < 0) && !(fd_file_out < 0) && access(argv[3], F_OK | X_OK) == 0)
 			execve(argv[3], args, envp);
-		write(2, "Deu ruim 2\n", 11);
-		exit(2);
+
+		if (!(fd_file_in < 0) && !(fd_file_out < 0))
+			error_code = 1;
+		else if (access(argv[3], F_OK))
+			error_code = 127;
+		else
+			error_code = 126;
+
+		// write(2, "Deu ruim 2\n", 11);
+		perror("Commmand 2");
+		exit(error_code);
 	}
 
 	close(fd[0]);
