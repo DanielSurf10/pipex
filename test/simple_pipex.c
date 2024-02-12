@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/11 22:00:42 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/11 23:47:21 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,13 +14,15 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <string.h>
+#include <stdlib.h>
+# include <sys/wait.h>
 
 int main(int argc, char *argv[], char *envp[])
 {
 	int	fd_file_in;
 	int	fd_file_out;
-	int	p1[2];
-	int	pid;
+	int	fd[2];
+	int	pid[2];
 
 	if (argc != 5)
 	{
@@ -38,36 +40,60 @@ int main(int argc, char *argv[], char *envp[])
 	if (fd_file_out < 0)
 		perror("Output file error");
 
-	pipe(p1);
-	pid = fork();
+	pipe(fd);
+	pid[0] = fork();
 
-	if (pid == 0)
+	if (pid[0] == 0)
 	{
 		// Processo filho
+		close(fd[0]);
+		close(fd_file_out);
+
 		char *args[] = {argv[2], NULL};
+
 		dup2(fd_file_in, STDIN_FILENO);
-		dup2(p1[1], STDOUT_FILENO);
+		dup2(fd[1], STDOUT_FILENO);
+
+		close(fd[1]);
+		close(fd_file_in);
+
 		if (!(fd_file_in < 0) && !(fd_file_out < 0))
 			execve(argv[2], args, envp);
 		write(2, "Deu ruim 1\n", 11);
-	}
-	else
-	{
-		// Processo pai
-		char *args[] = {argv[3], NULL};
-		dup2(p1[0], STDIN_FILENO);
-		dup2(fd_file_out, STDOUT_FILENO);
-		if (!(fd_file_in < 0) && !(fd_file_out < 0))
-			execve(argv[3], args, envp);
-		write(2, "Deu ruim 2\n", 11);
+		exit(2);
 	}
 
-	close(p1[0]);
-	close(p1[1]);
+	pid[1] = fork();
+
+	if (pid[1] == 0)
+	{
+		// Processo filho
+		close(fd[1]);
+		close(fd_file_in);
+
+		char *args[] = {"/bin/head", "-1", NULL};
+
+		dup2(fd[0], STDIN_FILENO);
+		dup2(fd_file_out, STDOUT_FILENO);
+
+		close(fd[0]);
+		close(fd_file_out);
+
+		if (!(fd_file_in < 0) && !(fd_file_out < 0))
+			execve("/bin/head", args, envp);
+		write(2, "Deu ruim 2\n", 11);
+		exit(2);
+	}
+
+	close(fd[0]);
+	close(fd[1]);
 	if (!(fd_file_in < 0))
 		close(fd_file_in);
 	if (!(fd_file_out < 0))
 		close(fd_file_out);
+
+	waitpid(pid[0], NULL, 0);
+	waitpid(pid[1], NULL, 0);
 
 	return (0);
 }
