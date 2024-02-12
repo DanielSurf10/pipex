@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/12 11:39:52 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/12 12:06:18 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,9 +32,6 @@ int main(int argc, char *argv[], char *envp[])
 	}
 
 	fd_file_in = open(argv[1], O_RDONLY);
-
-	printf("%s\n", argv[1]);
-	printf("%s\n", argv[5]);
 
 	if (fd_file_in < 0)
 		perror("Input file error");
