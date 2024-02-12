@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/11 20:28:01 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/11 22:00:42 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,6 @@ int main(int argc, char *argv[], char *envp[])
 		char *args[] = {argv[2], NULL};
 		dup2(fd_file_in, STDIN_FILENO);
 		dup2(p1[1], STDOUT_FILENO);
-		close(p1[1]);
 		if (!(fd_file_in < 0) && !(fd_file_out < 0))
 			execve(argv[2], args, envp);
 		write(2, "Deu ruim 1\n", 11);
