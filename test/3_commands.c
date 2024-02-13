@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/12 19:08:36 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/12 22:34:17 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 #include <fcntl.h>
 #include <string.h>
 #include <stdlib.h>
-# include <sys/wait.h>
+#include <sys/wait.h>
 
 int main(int argc, char *argv[], char *envp[])
 {
@@ -65,7 +65,8 @@ int main(int argc, char *argv[], char *envp[])
 
 		if (!(fd_file_in < 0) && !(fd_file_out < 0) && access(argv[2], F_OK | X_OK) == 0)
 			execve(argv[2], args, envp);
-		write(2, "Deu ruim 1\n", 11);
+		// write(2, "Deu ruim 1\n", 11);
+		perror("Commmand 1");
 		exit(2);
 	}
 
@@ -93,7 +94,8 @@ int main(int argc, char *argv[], char *envp[])
 
 		if (!(fd_file_in < 0) && !(fd_file_out < 0) && access(argv[3], F_OK | X_OK) == 0)
 			execve(argv[3], args, envp);
-		write(2, "Deu ruim 2\n", 11);
+		// write(2, "Deu ruim 2\n", 11);
+		perror("Commmand 2");
 		exit(2);
 	}
 
@@ -123,7 +125,8 @@ int main(int argc, char *argv[], char *envp[])
 
 		if (!(fd_file_in < 0) && !(fd_file_out < 0) && access(argv[4], F_OK | X_OK) == 0)
 			execve(argv[4], args, envp);
-		write(2, "Deu ruim 3\n", 11);
+		// write(2, "Deu ruim 3\n", 11);
+		perror("Commmand 3");
 		exit(2);
 	}
 
@@ -137,18 +140,9 @@ int main(int argc, char *argv[], char *envp[])
 
 	waitpid(pid[0], NULL, 0);
 	waitpid(pid[1], NULL, 0);
-	waitpid(pid[2], &return_code, 0);
+	waitpid(pid[2], NULL, 0);
 
-	printf("%s\n", argv[argc - 2]);
-
-	if (access(argv[argc - 2], F_OK) != 0)
-		return_code = 127;
-	else if (access(argv[argc - 2], X_OK) != 0)
-		return_code = 126;
-	else
-		return_code = (return_code >> 8) & 0xFF;
-
-	return (return_code);
+	return (0);
 }
 
 // int main(int argc, char *argv[])
