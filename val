@@ -6,4 +6,4 @@ then
   exit 1
 fi
 
-valgrind --trace-children=yes --track-fds=yes --track-origins=yes --leak-check=full --show-leak-kinds=all $@
+valgrind --trace-children=yes --track-fds=yes --track-origins=yes     --leak-check=full --show-leak-kinds=all --trace-children-skip='*/bin/*,*/sbin/*' $@
