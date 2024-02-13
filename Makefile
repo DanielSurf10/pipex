@@ -6,7 +6,7 @@
 #    By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/27 15:54:27 by danbarbo          #+#    #+#              #
-#    Updated: 2024/02/11 20:42:55 by danbarbo         ###   ########.fr        #
+#    Updated: 2024/02/13 14:51:36 by danbarbo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,4 +45,7 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all clean fclean re libft
+test: ${NAME}
+	@make -C testers/pipex-tester-denisgodoy
+
+.PHONY: all clean fclean re libft test

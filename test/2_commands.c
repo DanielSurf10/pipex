@@ -6,34 +6,34 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/13 00:38:07 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/13 16:46:54 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include <stdlib.h>
-#include <sys/wait.h>
+#include "pipex.h"
 
 // Passos da execução
 //
 // 1 - Verifica se tem os 4 argumentos
+//
 // 2 - Verifica o arquivo de entrada - argv[1]
-// 		2.1 - Abre um fd para o arquivo de entrada como O_RDONLY
-// 		2.1 - Verifica se é um fd válido
-//			2.1.1 - Se não for o erro é escrito no fd STDERR_FILENO
+//		2.1 - Abre um fd para o arquivo de entrada como O_RDONLY
+//		2.1 - Verifica se é um fd válido
+//			2.1.1 - Se não for um erro é escrito no fd STDERR_FILENO
+//
 // 3 - Verifica o arquivo de saída - argv[argc - 1]
-// 		3.1 - Abre um fd para o arquivo de saída como O_WRONLY | O_CREAT | O_TRUNC, 0644
+//		3.1 - Abre um fd para o arquivo de saída como O_WRONLY | O_CREAT | O_TRUNC, 0644
 //			3.1.1 - O fd é apenas escrita - O_WRONLY
 //			3.1.2 - Cria o arquivo se não existir - O_CREAT
 //			3.1.3 - Apaga todo o conteúdo do arquivo se existir - O_TRUNC
 //			3.1.4 - Muda a permissão do arquivo para 644
 //		3.2 - Verifica se é um fd válido
-//			3.2.1 - Se não for o erro é escrito no fd STDERR_FILENO
-// 4 - Se os 2 fd's são válidos continua, se não, para por aqui
+//			3.2.1 - Se não for um erro é escrito no fd STDERR_FILENO
+//
+// 4 - Se os 2 fd's são válidos continua, retorna 1
+//
 // 5 - Cria o pipe
+//
 // 6 - Faz o primeiro fork
 //		6.1 - No processo filho
 //			6.1.1 - Fecha os fd's que não for usar
@@ -55,7 +55,9 @@
 //				6.1.5.1 - Acaba por aqui o processo
 //				6.1.5.1 - A menos que não seja um arquivo que não é um programa
 //			6.1.6 - Se houver algum erro, o erro é escrito no fd STDERR_FILENO e retorna
+//
 // 7 - Cria o segundo pipe
+//
 // 8 - Faz o segundo fork
 
 int main(int argc, char *argv[], char *envp[])
@@ -64,7 +66,7 @@ int main(int argc, char *argv[], char *envp[])
 	int	fd_file_out;
 	int	fd[2];
 	int	pid[2];
-	int	error_code;
+	int	error;
 
 	if (argc != 5)
 	{
@@ -75,12 +77,15 @@ int main(int argc, char *argv[], char *envp[])
 	fd_file_in = open(argv[1], O_RDONLY);
 
 	if (fd_file_in < 0)
-		perror("Input file error");
+		perror("Invalid input file");
 
 	fd_file_out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
 	if (fd_file_out < 0)
-		perror("Output file error");
+		perror("Invalid output file");
+
+	if (fd_file_in < 0 || fd_file_out < 0)
+		exit(1);
 
 	pipe(fd);
 	pid[0] = fork();
@@ -88,27 +93,31 @@ int main(int argc, char *argv[], char *envp[])
 	if (pid[0] == 0)
 	{
 		// Processo filho primeiro comando
-		char *args[] = {argv[2], NULL};
+		char **args = ft_split(argv[2], ' ');
 
 		close(fd[0]);
-		if (!(fd_file_out < 0))
-			close(fd_file_out);
+		close(fd_file_out);
 
-		if (!(fd_file_in < 0))
-		{
-			dup2(fd_file_in, STDIN_FILENO);
-			close(fd_file_in);
-		}
+		dup2(fd_file_in, STDIN_FILENO);
+		close(fd_file_in);
 
 		dup2(fd[1], STDOUT_FILENO);
 		close(fd[1]);
 
-		if (!(fd_file_in < 0) && !(fd_file_out < 0) && access(argv[2], F_OK | X_OK) == 0)
-			execve(argv[2], args, envp);
+		if (access(args[0], F_OK | X_OK) == 0)
+			execve(args[0], args, envp);
+
+		ft_free_split(args);
 
 		// write(2, "Deu ruim 1\n", 11);
 		perror("Commmand 1");
-		exit(2);
+
+		if (access(args[0], F_OK | X_OK) != 0)
+			return (127);
+		else if (errno == EACCES)
+			return (126);
+		else
+			return (1);
 	}
 
 	pid[1] = fork();
@@ -116,41 +125,43 @@ int main(int argc, char *argv[], char *envp[])
 	if (pid[1] == 0)
 	{
 		// Processo filho segundo comando
-		char *args[] = {argv[3], NULL};
+		char **args = ft_split(argv[3], ' ');
 
-		if (!(fd_file_in < 0))
-			close(fd_file_in);
+		close(fd_file_in);
 		close(fd[1]);
 
-		if (!(fd_file_out < 0))
-		{
-			dup2(fd_file_out, STDOUT_FILENO);
-			close(fd_file_out);
-		}
+		dup2(fd_file_out, STDOUT_FILENO);
+		close(fd_file_out);
 
 		dup2(fd[0], STDIN_FILENO);
 		close(fd[0]);
 
-		if (!(fd_file_in < 0) && !(fd_file_out < 0) && access(argv[3], F_OK | X_OK) == 0)
-			execve(argv[3], args, envp);
+		if (access(args[0], F_OK | X_OK) == 0)
+			execve(args[0], args, envp);
+
+		ft_free_split(args);
 
 		// write(2, "Deu ruim 2\n", 11);
 		perror("Commmand 2");
-		exit(2);
+
+		if (access(args[0], F_OK | X_OK) != 0)
+			return (127);
+		else if (errno == EACCES)
+			return (126);
+		else
+			return (1);
 	}
 
 	close(fd[0]);
 	close(fd[1]);
 
-	if (!(fd_file_in < 0))
-		close(fd_file_in);
-	if (!(fd_file_out < 0))
-		close(fd_file_out);
+	close(fd_file_in);
+	close(fd_file_out);
 
 	waitpid(pid[0], NULL, 0);
-	waitpid(pid[1], NULL, 0);
+	waitpid(pid[1], &error, 0);
 
-	return (0);
+	return ((error >> 8) & 0xFF);
 }
 
 // int main(int argc, char *argv[])
