@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/13 15:17:15 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/13 17:11:50 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,13 @@ int main(int argc, char *argv[], char *envp[])
 
 		// write(2, "Deu ruim 1\n", 11);
 		perror("Commmand 1");
-		exit(127);
+
+		if (access(args[0], F_OK | X_OK) != 0)
+			return (127);
+		else if (errno == EACCES)
+			return (126);
+		else
+			return (1);
 	}
 
 	pid[1] = fork();
@@ -134,7 +140,13 @@ int main(int argc, char *argv[], char *envp[])
 
 		// write(2, "Deu ruim 2\n", 11);
 		perror("Commmand 2");
-		exit(127);
+
+		if (access(args[0], F_OK | X_OK) != 0)
+			return (127);
+		else if (errno == EACCES)
+			return (126);
+		else
+			return (1);
 	}
 
 	close(fd[0]);
