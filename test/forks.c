@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 22:38:49 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/10 22:50:12 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/18 23:39:47 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,3 +34,17 @@ int main()
 
 	return (0);
 }
+
+// set follow-fork-mode child		// Para seguir o child
+// set follow-fork-mode parent		// Para seguir o parent
+// show follow-fork-mode			// Para ver o valor
+
+// set detach-on-fork on			// Para deixar rolando sozinho
+// set detach-on-fork off			// Para depurar todo mundo junto
+// show detach-on-fork				// Para ver o valor
+
+// info inferiors					// para mostrar os processos ativos, que dá pra depurar
+									// Aqui deve aparecer uma lista dos processos
+									// Ou um processo só se não configurou "set detach-on-fork off"
+									// Ou não passou por nenhum fork
+// inferior <num>					// Para ecolher qual processo depurar
