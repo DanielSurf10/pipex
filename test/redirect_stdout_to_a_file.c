@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 16:07:01 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/11 16:11:20 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/19 14:12:29 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int main()
 	dup2(fd, STDOUT_FILENO);
 	close(fd);
 
-	printf("Oi, faland pelo arquivo agora.\n");
+	printf("Oi, falando pelo arquivo agora.\n");
 
 
 	return (0);

@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/18 23:40:15 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/19 12:55:59 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@
 //		3.2 - Verifica se é um fd válido
 //			3.2.1 - Se não for um erro é escrito no fd STDERR_FILENO
 //
-// 4 - Se os 2 fd's são válidos continua, retorna 1
+// 4 - Se os 2 fd's são válidos continua, se não retorna 1
 //
 // 5 - Cria o pipe
 //
@@ -49,11 +49,11 @@
 //				6.1.2.3 - Isso faz a saída do processo ser o pipe
 //			6.1.3 - Fecha os fd's fd[1] e fd_file_in, já que não precisa mais
 //			6.1.4 - Verifica o primeiro comando (argv[2]) - access(argv[2], F_OK | X_OK) == 0
-//				6.1.4.1 - Verifica se o caminho argv[2] é um arquivo (se for pasta passa tb)
+//				6.1.4.1 - Verifica se o caminho argv[2] é um arquivo ou pasta
 //				6.1.4.2 - Verifica se o arquivo tem permissão de execução
 //			6.1.5 - Executa o arquivo com execve
 //				6.1.5.1 - Acaba por aqui o processo
-//				6.1.5.1 - A menos que não seja um arquivo que não é um programa
+//				6.1.5.1 - A menos que ocorra um problema na execução
 //			6.1.6 - Se houver algum erro, o erro é escrito no fd STDERR_FILENO e retorna
 //
 // 7 - Cria o segundo pipe

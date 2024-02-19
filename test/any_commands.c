@@ -1,12 +1,12 @@
- /* ************************************************************************** */
+/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   3_commands.c                                       :+:      :+:    :+:   */
+/*   any_commands.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:56:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/19 18:02:48 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/19 19:48:02 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -143,6 +143,25 @@ int	exec_proc(t_command command)
 	else
 		return (1);
 }
+
+// Abre os fd's dos arquivos
+// Verifica se deu erro
+// faz um malloc de um array de int
+//	- Quantidade: número de comandos
+//	- Vai armazenar todos os pid's
+// abre o primeiro pipe pipe_in
+// faz o primeiro fork array pid[0]
+// executa o argv[2]
+// i = 3
+//
+// while
+// fecha os fd do pipe pipe_in
+// pipe_in vai para pipe_out
+// abre um pipe no pipe_in
+// faz um fork e põe o pid no array de pi's
+// executa comando arg[i]
+// i++ -> Isso até (i < argc - 1)
+//
 
 int	main(int argc, char *argv[], char *envp[])
 {
