@@ -6,7 +6,7 @@
 #    By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/10 19:29:07 by danbarbo          #+#    #+#              #
-#    Updated: 2024/01/09 17:32:46 by danbarbo         ###   ########.fr        #
+#    Updated: 2024/02/19 12:18:24 by danbarbo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,6 +34,7 @@ SRC	= ${addprefix src/, \
 			ft_putendl_fd.c \
 			ft_putnbr_fd.c \
 			ft_putstr_fd.c \
+			ft_read_all.c \
 			ft_split.c \
 			ft_strchr.c \
 			ft_strdup.c \

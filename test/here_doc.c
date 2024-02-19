@@ -6,35 +6,11 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/18 19:07:51 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/18 22:36:33 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/19 12:20:38 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
-
-#define BUFFER_SIZE 4096
-
-static char	*ft_read_all(int fd)
-{
-	int		chars_readed;
-	char	*temp_buffer;
-	char	*file_string;
-	char	*aux;
-
-	chars_readed = BUFFER_SIZE;
-	temp_buffer = (char *) malloc((BUFFER_SIZE + 1));
-	file_string = ft_strdup("");
-	while (chars_readed == BUFFER_SIZE)
-	{
-		chars_readed = read(fd, temp_buffer, BUFFER_SIZE);
-		temp_buffer[chars_readed] = '\0';
-		aux = file_string;
-		file_string = ft_strjoin(file_string, temp_buffer);
-		free(aux);
-	}
-	free(temp_buffer);
-	return (file_string);
-}
 
 int	main(int argc, char *argv[], char *envp[])
 {
@@ -101,7 +77,7 @@ int	main(int argc, char *argv[], char *envp[])
 
 	if (success == 0)
 		puts("");
-	printf("Readed: %s", line);
+	printf("\n%s", line);
 
 	free(line);
 	close(pipe_fd[0]);
@@ -114,18 +90,21 @@ int	main(int argc, char *argv[], char *envp[])
 // ./a.out here_doc bomdia
 // heredoc> algum texto
 // heredoc> bomdia
-// Readed: algum texto
+//
+// algum texto
 
 // ./a.out here_doc bomdia
 // heredoc> algum texto
 // heredoc> (CTRL + D)
 // Warning: here-document delimited by end-of-file (wanted 'bomdia')
-// Readed: algum texto
+//
+// algum texto
 
 // ./a.out here_doc bomdia
 // heredoc> (CTRL + D)
 // Warning: here-document delimited by end-of-file (wanted 'bomdia')
-// Readed:
+//
+//
 
 // ./a.out here_doc bomdia
 // heredoc> Uma frase
@@ -133,7 +112,8 @@ int	main(int argc, char *argv[], char *envp[])
 // heredoc> E mais outra
 // heredoc> Agora chega
 // heredoc> bomdia
-// Readed: Uma frase
+//
+// Uma frase
 // Outra frase
 // E mais outra
 // Agora chega
