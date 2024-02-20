@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 23:36:34 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/11 15:49:27 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/20 19:03:27 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,16 +33,14 @@ int main()
 		int x = 1503;
 		write(fd[1], &x, sizeof(int));
 		close(fd[1]);			// Depois de escrever fecha o fd
+		return (0);
 	}
-	else
-	{
-		close(fd[1]);			// Fecha o fd de escrita pq não precisa aqui
-		int y;
-		wait(NULL);
-		read(fd[0], &y, sizeof(int));
-		close(fd[0]);			// Depois de ler fecha o fd
-		printf("O número é: %d\n", y);
-	}
+	close(fd[1]);			// Fecha o fd de escrita pq não precisa aqui
+	int y;
+	wait(NULL);
+	read(fd[0], &y, sizeof(int));
+	close(fd[0]);			// Depois de ler fecha o fd
+	printf("O número é: %d\n", y);
 	printf("Acabou - pid: %d\n", pid);
 
 	return (0);

@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:56:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/20 11:40:16 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/20 17:10:58 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ char	*get_command_from_path(char *cmd, t_path path)
 		for (int i = 0; path.path[i]; i++)
 		{
 			new_command = join_paths(path.path[i], cmd);
-			printf("%s\n", new_command);
+			// printf("%s\n", new_command);
 			if (access(new_command, F_OK | X_OK) == 0)
 				break ;
 			free(new_command);
@@ -170,7 +170,7 @@ int	exec_proc(t_command command, t_path path)
 	char	**command_split;
 
 	command_split = ft_split(command.command, ' ');
-	printf("%s\n", command_split[0]);
+	// printf("%s\n", command_split[0]);
 	command_absolute = get_command_from_path(command_split[0], path);
 
 	// Se for o primeiro ele deve:
@@ -348,6 +348,7 @@ int	main(int argc, char *argv[], char *envp[])
 		free(pid);
 		command.command = argv[2];		// Primeiro comando
 		command.type = FIRST;
+		printf("%s\n", command.command);
 		return (exec_proc(command, path));
 	}
 
@@ -364,6 +365,7 @@ int	main(int argc, char *argv[], char *envp[])
 		{
 			free(pid);
 			command.command = argv[command_iter];
+			printf("%s\n", command.command);
 			return (exec_proc(command, path));
 		}
 		command_iter++;
@@ -379,6 +381,7 @@ int	main(int argc, char *argv[], char *envp[])
 	{
 		free(pid);
 		command.command = argv[command_iter];
+		printf("%s\n", command.command);
 		return (exec_proc(command, path));
 	}
 
@@ -403,3 +406,4 @@ int	main(int argc, char *argv[], char *envp[])
 
 // testes:
 // ./pipex test/files_test/file.txt "/bin/sleep 5" "/bin/ls" test/files_test/out
+//
