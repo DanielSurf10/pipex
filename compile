@@ -6,4 +6,4 @@ then
   exit 1
 fi
 
-cc -I include -I lib/libft/include $1 lib/libft/libft.a -g3
+cc -I include -I lib/libft/include $@ lib/libft/libft.a -g3

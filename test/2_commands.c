@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/19 12:55:59 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/20 10:12:21 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,15 @@
 //
 // 3 - Verifica o arquivo de saída - argv[argc - 1]
 //		3.1 - Abre um fd para o arquivo de saída como O_WRONLY | O_CREAT | O_TRUNC, 0644
-//			3.1.1 - O fd é apenas escrita - O_WRONLY
-//			3.1.2 - Cria o arquivo se não existir - O_CREAT
-//			3.1.3 - Apaga todo o conteúdo do arquivo se existir - O_TRUNC
+//			3.1.1 - O_WRONLY - O fd é apenas escrita
+//			3.1.2 - O_CREAT  - Cria o arquivo se não existir
+//			3.1.3 - O_TRUNC  - Apaga todo o conteúdo do arquivo se existir
 //			3.1.4 - Muda a permissão do arquivo para 644
+//				3.1.4.1 - S_IRUSR - Usuário tem permissão de leitura
+//				3.1.4.2 - S_IWUSR - Usuário tem permissão de escrita
+//				3.1.4.2 - S_IRGRP - Grupo tem permissão de leitura
+//				3.1.4.2 - S_IROTH - Outros tem permissão de leitura
+//			3.1.5 - Se o arquivo já existir ele muda a permissão do arquivo também
 //		3.2 - Verifica se é um fd válido
 //			3.2.1 - Se não for um erro é escrito no fd STDERR_FILENO
 //

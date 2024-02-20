@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:56:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/20 00:44:00 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/20 09:40:15 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,8 +89,7 @@ int	exec_proc(t_command command)
 
 		close(command.fd_file_in);
 		close(command.fd_file_out);
-		close(command.fd_pipe_out[READ]);
-		close(command.fd_pipe_out[WRITE]);
+		close_pipe(command.fd_pipe_out);
 	}
 
 	// Se for algum comando do meio ele deve:
@@ -108,10 +107,8 @@ int	exec_proc(t_command command)
 
 		close(command.fd_file_in);
 		close(command.fd_file_out);
-		close(command.fd_pipe_in[READ]);
-		close(command.fd_pipe_in[WRITE]);
-		close(command.fd_pipe_out[READ]);
-		close(command.fd_pipe_out[WRITE]);
+		close_pipe(command.fd_pipe_in);
+		close_pipe(command.fd_pipe_out);
 	}
 
 	// Se for o último comando ele deve:
@@ -127,9 +124,8 @@ int	exec_proc(t_command command)
 		dup2(command.fd_file_out, STDOUT_FILENO);
 
 		close(command.fd_file_in);
-		close(command.fd_pipe_in[WRITE]);
 		close(command.fd_file_out);
-		close(command.fd_pipe_in[READ]);
+		close_pipe(command.fd_pipe_in);
 	}
 
 	if (access(command_split[0], F_OK | X_OK) == 0)

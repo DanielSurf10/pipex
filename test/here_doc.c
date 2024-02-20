@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/18 19:07:51 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/19 12:20:38 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/20 10:17:43 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,13 +20,14 @@ int	main(int argc, char *argv[], char *envp[])
 	int		success;
 	size_t	readed;
 	size_t	delimiter_size;
+	int		fd_file_out;
 	int		pipe_fd[2];
 	char	*delimiter;
 	char	*line;
 
-	if (argc != 3 || ft_strncmp("here_doc", argv[1], -1))
+	if (argc != 5 || ft_strncmp("here_doc", argv[1], -1))
 	{
-		write(2, "Usage error.\nExpected: ./pipex here_doc <DELIMITER>\n", 53);
+		write(2, "Usage error.\nExpected: ./pipex here_doc <DELIMITER> <file_out>\n", 64);
 		return (1);
 	}
 	delimiter = argv[2];
@@ -36,6 +37,14 @@ int	main(int argc, char *argv[], char *envp[])
 	has_read = 0;
 	line = NULL;
 	success = 0;
+
+	fd_file_out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_APPEND, 0644);
+
+	if (fd_file_out < 0)
+	{
+		perror("Invalid output file");
+		return(1);
+	}
 
 	pipe(pipe_fd);
 
@@ -77,10 +86,11 @@ int	main(int argc, char *argv[], char *envp[])
 
 	if (success == 0)
 		puts("");
-	printf("\n%s", line);
+	ft_putstr_fd(line, fd_file_out);
 
 	free(line);
 	close(pipe_fd[0]);
+	close(fd_file_out);
 
 	return (0);
 }
