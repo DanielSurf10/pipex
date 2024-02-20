@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/20 10:12:21 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/20 11:09:40 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,21 +169,4 @@ int main(int argc, char *argv[], char *envp[])
 	return ((error >> 8) & 0xFF);
 }
 
-// int main(int argc, char *argv[])
-// {
-// 	int fd = -1;
-// 	// if (access(argv[1], F_OK | R_OK) != 0)
-// 	// 	perror("Error");
-// 	if ((fd = open(argv[1], O_RDONLY)) < 0)
-// 		perror("Error description");
-// 	else if ((read(fd, 0, 0)) < 0)
-// 		perror("Error desc");
-// 	else
-// 	{
-// 		char lido[50];
-// 		memset(lido, 0, 50);
-//
-// 		printf("%d\n", fd);
-// 		printf("%s\n", lido);
-// 	}
-// }
+// ./pipex /proc/$$/fd/0 "/bin/cat -e" "/bin/grep a" /proc/$$/fd/1

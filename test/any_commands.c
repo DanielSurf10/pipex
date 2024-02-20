@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:56:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/20 09:40:15 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/20 11:40:16 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,101 @@ typedef struct s_command
 	char	*command;
 	char	**envp;
 }	t_command;
+
+
+typedef struct s_path
+{
+	char	*home;
+	char	*pwd;
+	char	**path;
+}	t_path;
+
+char	**get_split(char *str)
+{
+	char	*start;
+	char	**split;
+
+	start = ft_strchr(str, '=') + 1;
+	split = ft_split(start, ':');
+	return (split);
+}
+
+char	*join_paths(char *absolute, char *relative)
+{
+	char	total_size;
+	int		absolute_size;
+	char	*str;
+
+	absolute_size = ft_strlen(absolute);
+	total_size = absolute_size + ft_strlen(relative) + 2;		// Mais 2 da "/" e do '\0'
+	str = malloc(total_size);
+	ft_strlcpy(str, absolute, total_size);
+	str[absolute_size] = '/';
+	str[absolute_size + 1] = '\0';
+	ft_strlcat(str, relative, total_size);
+	return (str);
+}
+
+t_path	get_path_variables(char *envp[])
+{
+	int		i;
+	t_path	path;
+
+	i = 0;
+	while (envp[i])
+	{
+		if (ft_strncmp(envp[i], "PATH", 4) == 0)
+			path.path = get_split(envp[i]);
+		else if (ft_strncmp(envp[i], "PWD", 3) == 0)
+			path.pwd = ft_strdup(ft_strchr(envp[i], '=') + 1);
+		else if (ft_strncmp(envp[i], "HOME", 3) == 0)
+			path.home = ft_strdup(ft_strchr(envp[i], '=') + 1);
+		i++;
+	}
+	return (path);
+}
+
+char	*get_command_from_path(char *cmd, t_path path)
+{
+	char	*new_command;
+
+	new_command = NULL;
+	if (ft_strchr(cmd, '/') == NULL && cmd[0] != '~')
+	{
+		for (int i = 0; path.path[i]; i++)
+		{
+			new_command = join_paths(path.path[i], cmd);
+			printf("%s\n", new_command);
+			if (access(new_command, F_OK | X_OK) == 0)
+				break ;
+			free(new_command);
+			new_command = NULL;
+		}
+		// if (new_command == NULL)
+		// 	new_command = ft_strdup(cmd);
+	}
+	else
+	{
+		// int command_size = ft_strlen(cmd);
+		// if (cmd[command_size - 1] == '/')
+		// 	cmd[command_size - 1] = '\0';
+
+		if (cmd[0] == '/')
+			new_command = ft_strdup(cmd);
+		else if (cmd[0] == '~')
+		{
+			if (cmd[1] == '/')
+				new_command = join_paths(path.home, cmd + 2);
+			else
+				new_command = join_paths(path.home, cmd + 1);
+		}
+		else if (ft_strncmp(cmd, "./", 2) == 0)
+			new_command = join_paths(path.pwd, cmd + 2);
+		else
+			new_command = join_paths(path.pwd, cmd);
+	}
+	return (new_command);
+}
 
 // Primeiro comando:
 //	- fd_file_in				- usado
@@ -68,12 +163,15 @@ void	close_pipe(int *fd_pipe)
 	close(fd_pipe[1]);
 }
 
-int	exec_proc(t_command command)
+int	exec_proc(t_command command, t_path path)
 {
 	int		return_code;
+	char	*command_absolute;
 	char	**command_split;
 
 	command_split = ft_split(command.command, ' ');
+	printf("%s\n", command_split[0]);
+	command_absolute = get_command_from_path(command_split[0], path);
 
 	// Se for o primeiro ele deve:
 	//	- Fazer o dup2 com command.fd_file_in e STDIN_FILENO
@@ -128,20 +226,25 @@ int	exec_proc(t_command command)
 		close_pipe(command.fd_pipe_in);
 	}
 
-	if (access(command_split[0], F_OK | X_OK) == 0)
-		execve(command_split[0], command_split, command.envp);
+	if (command_absolute && access(command_absolute, F_OK | X_OK) == 0)
+		execve(command_absolute, command_split, command.envp);
 
 	// write(2, "Deu ruim 1\n", 11);
-	perror(command_split[0]);
+	perror(command_absolute);
 
-	if (access(command_split[0], F_OK) != 0)
+	if (!command_absolute || access(command_absolute, F_OK) != 0)
 		return_code = 127;
-	else if (access(command_split[0], X_OK) != 0)
+	else if (access(command_absolute, X_OK) != 0)
 		return_code = 126;
 	else
 		return_code = 1;
 
 	ft_free_split(command_split);
+	if (command_absolute)
+		free(command_absolute);
+	free(path.home);
+	free(path.pwd);
+	ft_free_split(path.path);
 	return (return_code);
 }
 
@@ -207,6 +310,7 @@ int	main(int argc, char *argv[], char *envp[])
 	// int	fd2[2];
 	// int	pid[3];
 	t_command	command;
+	t_path		path;
 	int			command_iter;
 	int			return_code;
 	int			*pid;
@@ -230,6 +334,8 @@ int	main(int argc, char *argv[], char *envp[])
 	if (command.fd_file_in < 0 || command.fd_file_out < 0)
 		return(1);
 
+	path = get_path_variables(envp);
+
 	command_iter = 3;
 	command.envp = envp;
 	pid = malloc(sizeof(int) * (argc - 3));
@@ -242,7 +348,7 @@ int	main(int argc, char *argv[], char *envp[])
 		free(pid);
 		command.command = argv[2];		// Primeiro comando
 		command.type = FIRST;
-		return (exec_proc(command));
+		return (exec_proc(command, path));
 	}
 
 	command.type = MID;
@@ -258,7 +364,7 @@ int	main(int argc, char *argv[], char *envp[])
 		{
 			free(pid);
 			command.command = argv[command_iter];
-			return (exec_proc(command));
+			return (exec_proc(command, path));
 		}
 		command_iter++;
 	}
@@ -273,7 +379,7 @@ int	main(int argc, char *argv[], char *envp[])
 	{
 		free(pid);
 		command.command = argv[command_iter];
-		return (exec_proc(command));
+		return (exec_proc(command, path));
 	}
 
 	close_pipe(command.fd_pipe_in);
@@ -286,7 +392,12 @@ int	main(int argc, char *argv[], char *envp[])
 		waitpid(pid[command_iter], &return_code, 0);
 		command_iter++;
 	}
+
 	free(pid);
+	free(path.home);
+	free(path.pwd);
+	ft_free_split(path.path);
+
 	return ((return_code >> 8) & 0xFF);
 }
 

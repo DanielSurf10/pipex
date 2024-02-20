@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 17:12:06 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/18 18:42:20 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/20 11:24:52 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,13 @@
 // PATH
 // PWD
 // Home
+
+typedef struct s_path
+{
+	char	*home;
+	char	*pwd;
+	char	**path;
+}	t_path;
 
 char	**get_split(char *str)
 {
@@ -42,28 +49,81 @@ char	*join_paths(char *absolute, char *relative)
 	return (str);
 }
 
+t_path	get_path_variables(char *envp[])
+{
+	int		i;
+	t_path	path;
+
+	i = 0;
+	while (envp[i])
+	{
+		if (ft_strncmp(envp[i], "PATH", 4) == 0)
+			path.path = get_split(envp[i]);
+		else if (ft_strncmp(envp[i], "PWD", 3) == 0)
+			path.pwd = ft_strdup(ft_strchr(envp[i], '=') + 1);
+		else if (ft_strncmp(envp[i], "HOME", 3) == 0)
+			path.home = ft_strdup(ft_strchr(envp[i], '=') + 1);
+		i++;
+	}
+	return (path);
+}
+
+char	*get_command_from_path(char *cmd, t_path path)
+{
+	char	*new_command;
+
+	new_command = NULL;
+	if (ft_strchr(cmd, '/') == NULL && cmd[0] != '~')
+	{
+		for (int i = 0; path.path[i]; i++)
+		{
+			new_command = join_paths(path.path[i], cmd);
+			printf("%s\n", new_command);
+			if (access(new_command, F_OK | X_OK) == 0)
+				break ;
+			free(new_command);
+			new_command = NULL;
+		}
+		// if (new_command == NULL)
+		// 	new_command = ft_strdup(cmd);
+	}
+	else
+	{
+		// int command_size = ft_strlen(cmd);
+		// if (cmd[command_size - 1] == '/')
+		// 	cmd[command_size - 1] = '\0';
+
+		if (cmd[0] == '/')
+			new_command = ft_strdup(cmd);
+		else if (cmd[0] == '~')
+		{
+			if (cmd[1] == '/')
+				new_command = join_paths(path.home, cmd + 2);
+			else
+				new_command = join_paths(path.home, cmd + 1);
+		}
+		else if (ft_strncmp(cmd, "./", 2) == 0)
+			new_command = join_paths(path.pwd, cmd + 2);
+		else
+			new_command = join_paths(path.pwd, cmd);
+	}
+	return (new_command);
+}
+
 int main(int argv, char *argc[], char *envp[])
 {
-	char	*pwd;
-	char	*home;
-	char	**path;
+	// char	*pwd;
+	// char	*home;
+	// char	**path;
 	char	*command;
 	char	**command_splitted;
+	t_path	path;
 
 	if (argv != 2)
 		return (1);
 
+	path = get_path_variables(envp);
 	command_splitted = ft_split(argc[1], ' ');
-
-	for (int i = 0; envp[i]; i++)
-	{
-		if (ft_strncmp(envp[i], "PATH", 4) == 0)
-			path = get_split(envp[i]);
-		else if (ft_strncmp(envp[i], "PWD", 3) == 0)
-			pwd = ft_strdup(ft_strchr(envp[i], '=') + 1);
-		else if (ft_strncmp(envp[i], "HOME", 3) == 0)
-			home = ft_strdup(ft_strchr(envp[i], '=') + 1);
-	}
 
 // 	printf("PATH: \n");
 // 	for (int i = 0; path[i]; i++)
@@ -72,53 +132,21 @@ int main(int argv, char *argc[], char *envp[])
 	// printf("PWD = %s\n", pwd);
 	// printf("HOME = %s\n", home);
 
-	if (ft_strchr(command_splitted[0], '/') == NULL && command_splitted[0][0] != '~')
-	{
-		for (int i = 0; path[i]; i++)
-		{
-			command = join_paths(path[i], command_splitted[0]);
-			printf("%s\n", command);
-			if (access(command, F_OK | X_OK) == 0)
-				break ;
-			free(command);
-			command = NULL;
-		}
-		// if (command == NULL)
-		// 	command = ft_strdup(command_splitted[0]);
-	}
-	else
-	{
-		// int command_size = ft_strlen(command_splitted[0]);
-		// if (command_splitted[0][command_size - 1] == '/')
-		// 	command_splitted[0][command_size - 1] = '\0';
-
-		if (command_splitted[0][0] == '/')
-			command = ft_strdup(command_splitted[0]);
-		else if (command_splitted[0][0] == '~')
-		{
-			if (command_splitted[0][1] == '/')
-				command = join_paths(home, command_splitted[0] + 2);
-			else
-				command = join_paths(home, command_splitted[0] + 1);
-		}
-		else if (ft_strncmp(command_splitted[0], "./", 2) == 0)
-			command = join_paths(pwd, command_splitted[0] + 2);
-		else
-			command = join_paths(pwd, command_splitted[0]);
-	}
+	command = get_command_from_path(command_splitted[0], path);
 
 	if (command)
 		printf("%s\n", command);
 
-	ft_free_split(path);
-	free(pwd);
+	ft_free_split(path.path);
+	free(path.pwd);
+	free(path.home);
 
 	if (command && access(command, F_OK | X_OK) == 0)
 		execve(command, command_splitted, envp);
 
 	if (command || access(command, F_OK) != 0)
 		perror("Command not found");
-	else if (access(command, X_OK) != 0)		// Pareque que não pode usar isso: || errno == EACCES)
+	else if (access(command, X_OK) != 0)		// Não sei se pode usar isso: || errno == EACCES)
 		perror("Permission denied");
 
 	if (command)
