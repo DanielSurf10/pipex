@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:56:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/20 17:10:58 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/21 16:04:13 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,6 @@ typedef struct s_command
 	char	*command;
 	char	**envp;
 }	t_command;
-
 
 typedef struct s_path
 {
