@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/20 11:09:40 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/24 22:51:17 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,17 +80,21 @@ int main(int argc, char *argv[], char *envp[])
 	}
 
 	fd_file_in = open(argv[1], O_RDONLY);
+	fd_file_out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
 	if (fd_file_in < 0)
 		perror("Invalid input file");
 
-	fd_file_out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 
 	if (fd_file_out < 0)
 		perror("Invalid output file");
 
-	if (fd_file_in < 0 || fd_file_out < 0)
-		exit(1);
+	// Aqui dá leak de fd do fd_file_out, se der ruim, quando o arquivo de entrada não existir
+	if (access(argv[1], F_OK) != 0 || fd_file_out < 0)
+		return(1);
+
+	if (fd_file_in < 0)		// Se o arquivo existir e não tiver pemissão
+		return(0);
 
 	pipe(fd);
 	pid[0] = fork();

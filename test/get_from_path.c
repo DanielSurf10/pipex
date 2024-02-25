@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 17:12:06 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/20 11:24:52 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/24 23:12:04 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,11 @@ char	*join_paths(char *absolute, char *relative)
 	char	*str;
 
 	absolute_size = ft_strlen(absolute);
-	total_size = absolute_size + ft_strlen(relative) + 2;		// Mais 2 da "/" e do '\0'
+	if (absolute[absolute_size - 1] == '/')
+		absolute_size--;
+	if (relative[0] == '/')
+		relative++;
+	total_size = absolute_size + ft_strlen(relative) + 2;
 	str = malloc(total_size);
 	ft_strlcpy(str, absolute, total_size);
 	str[absolute_size] = '/';
@@ -73,7 +77,13 @@ char	*get_command_from_path(char *cmd, t_path path)
 	char	*new_command;
 
 	new_command = NULL;
-	if (ft_strchr(cmd, '/') == NULL && cmd[0] != '~')
+
+	//	Só vai pegar o comando da path se:
+	//		- Não ter "~" na frente do comando - cmd[0]
+	//		- Não ter apenas "." no comando
+	//		- Não ter qualquer "/" em qualquer lugar do comando
+	if (cmd[0] != '~' && ft_strncmp(cmd, ".", -1) == 0
+			&& ft_strchr(cmd, '/') == NULL)
 	{
 		for (int i = 0; path.path[i]; i++)
 		{

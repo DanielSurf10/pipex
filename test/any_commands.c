@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:56:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/21 16:04:13 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/24 13:13:43 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,6 @@ enum e_process
 	FIRST = 0,
 	MID,
 	LAST
-};
-
-enum e_fd
-{
-	READ = 0,
-	WRITE
 };
 
 typedef struct s_command
@@ -60,7 +54,11 @@ char	*join_paths(char *absolute, char *relative)
 	char	*str;
 
 	absolute_size = ft_strlen(absolute);
-	total_size = absolute_size + ft_strlen(relative) + 2;		// Mais 2 da "/" e do '\0'
+	if (absolute[absolute_size - 1] == '/')
+		absolute_size--;
+	if (relative[0] == '/')
+		relative++;
+	total_size = absolute_size + ft_strlen(relative) + 2;
 	str = malloc(total_size);
 	ft_strlcpy(str, absolute, total_size);
 	str[absolute_size] = '/';
