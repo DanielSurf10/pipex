@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 12:46:41 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/24 23:13:05 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/25 12:51:37 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,7 @@ char	*get_absolute_path(char *cmd, t_path path)
 {
 	char	*new_command;
 
-	if (cmd[0] != '~' && ft_strncmp(cmd, ".", -1) == 0
+	if (cmd[0] != '~' && ft_strncmp(cmd, ".", -1) != 0
 			&& ft_strchr(cmd, '/') == NULL)
 		new_command = get_from_path(cmd, path);
 	else

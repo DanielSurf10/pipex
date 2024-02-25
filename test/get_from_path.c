@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 17:12:06 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/24 23:12:04 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/25 12:52:57 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,7 +82,7 @@ char	*get_command_from_path(char *cmd, t_path path)
 	//		- Não ter "~" na frente do comando - cmd[0]
 	//		- Não ter apenas "." no comando
 	//		- Não ter qualquer "/" em qualquer lugar do comando
-	if (cmd[0] != '~' && ft_strncmp(cmd, ".", -1) == 0
+	if (cmd[0] != '~' && ft_strncmp(cmd, ".", -1) != 0
 			&& ft_strchr(cmd, '/') == NULL)
 	{
 		for (int i = 0; path.path[i]; i++)
