@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/24 22:51:17 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/26 15:33:51 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,6 @@ int main(int argc, char *argv[], char *envp[])
 	if (fd_file_in < 0)
 		perror("Invalid input file");
 
-
 	if (fd_file_out < 0)
 		perror("Invalid output file");
 
@@ -104,13 +103,13 @@ int main(int argc, char *argv[], char *envp[])
 		// Processo filho primeiro comando
 		char **args = ft_split(argv[2], ' ');
 
-		close(fd[0]);
+		dup2(fd_file_in, STDIN_FILENO);
+		dup2(fd[1], STDOUT_FILENO);
+
+		close(fd_file_in);
 		close(fd_file_out);
 
-		dup2(fd_file_in, STDIN_FILENO);
-		close(fd_file_in);
-
-		dup2(fd[1], STDOUT_FILENO);
+		close(fd[0]);
 		close(fd[1]);
 
 		if (access(args[0], F_OK | X_OK) == 0)

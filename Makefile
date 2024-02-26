@@ -6,7 +6,7 @@
 #    By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/27 15:54:27 by danbarbo          #+#    #+#              #
-#    Updated: 2024/02/13 14:51:36 by danbarbo         ###   ########.fr        #
+#    Updated: 2024/02/26 18:00:54 by danbarbo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,15 +37,15 @@ libft:
 
 clean:
 	@rm -rf $(OBJS)
-	@make -C ${LIBFT} clean
+#	@make -C ${LIBFT} clean		# Tirar isso dps
 
 fclean: clean
 	@rm -rf $(NAME)
-	@make -C ${LIBFT} clean
+#	@make -C ${LIBFT} clean		# Tirar isso dps
 
 re: fclean all
 
 test: ${NAME}
-	@make -C testers/pipex-tester-denisgodoy
+	@make -C testers/pipex-tester
 
 .PHONY: all clean fclean re libft test

@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 20:44:08 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/24 14:00:56 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/26 18:15:33 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,14 +55,22 @@ typedef struct s_pipex
 	int		type;
 	int		return_code;
 	char	*command;
+	char	**argv;
 	char	**envp;
 	t_path	path;
 }	t_pipex;
 
 // Functions
 
+// main
+int		exec_command(t_pipex command);
+
+// path
 t_path	get_path_variables(char **envp);
-int		exec_proc(t_pipex command);
+char	*get_absolute_path(char *cmd, t_path path);
+
+// utils
 void	close_pipe(int *fd_pipe);
+void	set_dup2(int fd_in, int fd_out);
 
 #endif
