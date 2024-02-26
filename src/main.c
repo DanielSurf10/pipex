@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/26 18:50:01 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/26 19:15:32 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,26 @@ void	init(t_pipex *command, char *argv[], char *envp[])
 	command->argv = argv;
 	command->envp = envp;
 	command->fd_file_in = open(command->argv[1], O_RDONLY);
-	command->fd_file_out = open(command->argv[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	command->fd_file_out = open(command->argv[4],
+			O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	command->path = get_path_variables(command->envp);
 	if (command->fd_file_in < 0)
 		perror("Invalid input file");
 	if (command->fd_file_out < 0)
 		perror("Invalid output file");
+	if (access(argv[1], F_OK) == 0 && command->fd_file_out != -1
+		&& command->fd_file_in != -1)
+		pipe(command->fd_pipe);
+	else
+	{
+		if (command->fd_file_in != -1)
+			close(command->fd_file_in);
+		if (command->fd_file_out != -1)
+			close(command->fd_file_out);
+		free(command->path.home);
+		free(command->path.pwd);
+		ft_free_split(command->path.path);
+	}
 }
 
 int	exec_child(t_pipex *command, int type)
@@ -47,7 +61,6 @@ int	main(int argc, char *argv[], char *envp[])
 	int		i;
 	t_pipex	command;
 
-	i = 0;
 	if (argc != 5)
 	{
 		write(2, "Usage error.\n", 14);
@@ -56,16 +69,15 @@ int	main(int argc, char *argv[], char *envp[])
 	}
 	init(&command, argv, envp);
 	if (access(argv[1], F_OK) != 0 || command.fd_file_out < 0)
-		return(1);
+		return (1);
 	if (command.fd_file_in < 0)
-		return(0);
-	pipe(command.fd_pipe);
-	while (i < 2)
+		return (0);
+	i = -1;
+	while (++i < 2)
 	{
 		command.pid[i] = fork();
 		if (command.pid[i] == 0)
 			return (exec_child(&command, i));
-		i++;
 	}
 	free_and_close(&command);
 	waitpid(command.pid[0], NULL, 0);
