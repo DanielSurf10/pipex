@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/24 12:49:53 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/19 12:22:10 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/27 10:47:39 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void	*ft_free_split(char **split)
 	int	i;
 
 	i = 0;
-	while (split[i])
+	while (split && split[i])
 	{
 		free(split[i]);
 		i++;

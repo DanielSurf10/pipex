@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 17:12:06 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/25 12:52:57 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/27 10:28:20 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,12 +16,12 @@
 // PWD
 // Home
 
-typedef struct s_path
-{
-	char	*home;
-	char	*pwd;
-	char	**path;
-}	t_path;
+// typedef struct s_path
+// {
+// 	char	*home;
+// 	char	*pwd;
+// 	char	**path;
+// }	t_path;
 
 char	**get_split(char *str)
 {

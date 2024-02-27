@@ -1,14 +1,71 @@
+# Teste com
+# Com a PATH, PWD e HOME
+# Sem PATH -> PATH = "" - Mudei o código para aceitar isso
+# Sem PWD -> PWD = ""
+# Sem HOME -> HOME = ""
+
 # Invalid number of arguments
 ./pipex infile
 
 # Invalid infile
-./pipex invalid_infile "cat -e" "grep $" "wc -l" out
+./pipex no_permission cat cat outfile
+./pipex non_existent cat cat inexistent
 
-# Infile bad permission
-./pipex no_permission "cat" "grep x" out
+# Invalid outfile or nonexistent
+./pipex infile cat cat no_permission
+./pipex infile cat cat inexistent
 
-# Outfile bad permission
-./pipex infile "grep pipex" "wc -lw" no_permission
+# Folder as file and commands
+./pipex folder cat cat outfile
+./pipex infile cat cat folder
+./pipex folder cat cat folder
+./pipex infile folder cat outfile
+./pipex infile cat folder outfile
+./pipex infile folder folder outfile
 
-# Invalid command 1
-./pipex infile "catzado" "wc -w" output/outfile'${count}
+# Invalid commands
+./pipex infile cata cat outfile
+./pipex infile cat cata outfile
+./pipex infile cata cata outfile
+./pipex infile /bin/cata cata outfile
+./pipex infile cata /bin/cata outfile
+./pipex infile /bin/cata /bin/cata outfile
+./pipex infile not-executable cat outfile
+./pipex infile cat not-executable outfile
+./pipex infile ./not-executable ./not-executable outfile	# Mudar esse aqui
+./pipex infile ./notexisting cat outfile					# Mudar esse aqui
+./pipex infile cat ./notexisting outfile					# Mudar esse aqui
+./pipex infile ./notexisting ./notexisting outfile			# Mudar esse aqui
+
+# Valid commands from path
+./pipex infile cat cat outfile
+./pipex infile cat hostname outfile
+./pipex infile "grep d" "cat -e" outfile
+./pipex /dev/urandom "head -n 10" "wc -l" outfile
+./pipex infile "cat" "tr [a-z] [A-Z]" outfile
+./pipex infile "sed "s/And/But/" "grep But" outfile
+./pipex infile "sleep 5" ls outfile
+./pipex infile grep cat outfile
+./pipex infile cat grep outfile
+./pipex infile grep grep outfile
+./pipex infile ping cat outfile
+
+# Valid commands absolute path
+./pipex infile /bin/cat /bin/cat outfile
+./pipex infile /bin/cat /bin/hostname outfile
+./pipex infile "/bin/grep d" "/bin/cat -e" outfile
+./pipex /dev/urandom "/bin/head -n 10" "/bin/wc -l" outfile
+./pipex infile "/bin/cat" "/bin/tr [a-z] [A-Z]" outfile
+./pipex infile "/bin/sed "s/And/But/" "/bin/grep But" outfile
+./pipex infile "/bin/sleep 5" /bin/ls outfile
+./pipex infile /bin/grep /bin/cat outfile
+./pipex infile /bin/cat /bin/grep outfile
+./pipex infile /bin/grep /bin/grep outfile
+
+# Valid commands relative path
+./pipex infile ./test ./test outfile
+./pipex infile tester_folder/test tester_folder/test outfile
+
+# Script as command
+./pipex infile ./script.sh wc outfile
+./pipex infile script.sh cat outfile
