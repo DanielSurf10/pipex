@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/26 19:15:32 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/26 22:57:23 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,23 +19,22 @@ void	init(t_pipex *command, char *argv[], char *envp[])
 	command->fd_file_in = open(command->argv[1], O_RDONLY);
 	command->fd_file_out = open(command->argv[4],
 			O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	command->path = get_path_variables(command->envp);
 	if (command->fd_file_in < 0)
 		perror("Invalid input file");
 	if (command->fd_file_out < 0)
 		perror("Invalid output file");
 	if (access(argv[1], F_OK) == 0 && command->fd_file_out != -1
 		&& command->fd_file_in != -1)
+	{
 		pipe(command->fd_pipe);
+		command->path = get_path_variables(command->envp);
+	}
 	else
 	{
 		if (command->fd_file_in != -1)
 			close(command->fd_file_in);
 		if (command->fd_file_out != -1)
 			close(command->fd_file_out);
-		free(command->path.home);
-		free(command->path.pwd);
-		ft_free_split(command->path.path);
 	}
 }
 

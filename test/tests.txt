@@ -1,0 +1,14 @@
+# Invalid number of arguments
+./pipex infile
+
+# Invalid infile
+./pipex invalid_infile "cat -e" "grep $" "wc -l" out
+
+# Infile bad permission
+./pipex no_permission "cat" "grep x" out
+
+# Outfile bad permission
+./pipex infile "grep pipex" "wc -lw" no_permission
+
+# Invalid command 1
+./pipex infile "catzado" "wc -w" output/outfile'${count}
