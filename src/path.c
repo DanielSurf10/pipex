@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 16:16:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/26 19:01:32 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/27 11:02:59 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,8 @@ t_path	get_path_variables(char **envp)
 	t_path	path;
 
 	i = 0;
-	while (envp[i])
+	ft_bzero(&path, sizeof(t_path));
+	while (envp && envp[i])
 	{
 		if (ft_strncmp(envp[i], "PATH", 4) == 0)
 			path.path = split_path(envp[i]);
@@ -67,7 +68,8 @@ char	*get_from_path(char *cmd, t_path path)
 	char	*new_command;
 
 	i = 0;
-	while (path.path[i])
+	new_command = NULL;
+	while (path.path && path.path[i])
 	{
 		new_command = join_paths(path.path[i], cmd);
 		if (access(new_command, F_OK | X_OK) == 0)
@@ -83,6 +85,7 @@ char	*get_absolute_path(char *cmd, t_path path)
 {
 	char	*new_command;
 
+	new_command = NULL;
 	if (cmd[0] != '~' && ft_strncmp(cmd, ".", -1) != 0
 		&& ft_strchr(cmd, '/') == NULL)
 		new_command = get_from_path(cmd, path);
@@ -90,11 +93,11 @@ char	*get_absolute_path(char *cmd, t_path path)
 	{
 		if (cmd[0] == '/')
 			new_command = ft_strdup(cmd);
-		else if (ft_strncmp(cmd, "./", 2) == 0)
+		else if (ft_strncmp(cmd, "./", 2) == 0 && path.pwd != NULL)
 			new_command = join_paths(path.pwd, cmd + 2);
-		else if (cmd[0] == '~')
+		else if (cmd[0] == '~' && path.home != NULL)
 			new_command = join_paths(path.home, cmd + 1);
-		else
+		else if (path.pwd != NULL)
 			new_command = join_paths(path.pwd, cmd);
 	}
 	return (new_command);
