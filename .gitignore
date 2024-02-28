@@ -2,5 +2,6 @@
 *.a
 a.out
 pipex
-test/files_test/no_permission.txt
+no_permission.txt
+no_permission
 testers

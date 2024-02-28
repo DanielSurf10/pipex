@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/27 12:13:07 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/28 00:19:28 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ int	main(int argc, char *argv[], char *envp[])
 	init(&command, argv, envp);
 	if (access(argv[1], F_OK) != 0 || command.fd_file_out < 0)
 		return (1);
-	if (command.fd_file_in < 0)
+	if (command.fd_file_in < 0)			// Algo aqui parece estar errado
 		return (0);
 	i = -1;
 	while (++i < 2)
@@ -78,8 +78,8 @@ int	main(int argc, char *argv[], char *envp[])
 		if (command.pid[i] == 0)
 			return (exec_child(&command, i));
 	}
-	free_and_close(&command);
 	waitpid(command.pid[0], NULL, 0);
-	waitpid(command.pid[1], &command.return_code, 0);
-	return ((command.return_code >> 8) & 0xFF);
+	free_and_close(&command);							// Precisa fechar em baixo para
+	waitpid(command.pid[1], &command.return_code, 0);	// evitar broken pipe e no meio
+	return ((command.return_code >> 8) & 0xFF);			// para não fazer o 2º child esperar
 }

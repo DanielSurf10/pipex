@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 22:50:00 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/20 18:42:24 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/27 23:37:39 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,13 @@
 int main(int argc, char *argv[], char *envp[])
 {
 	int		pid;
-	char	*args[] = {"/bin/sleep", "5", NULL};
+	char	*args[] = {"../pipex/pipex", "5", NULL};
 
 	printf("Começando\n");
 	pid = fork();
 	if (pid == 0)
 	{
-		execve("/bin/sleep", args, envp);
+		execve(args[0], args, envp);
 		return (1);
 
 // 		char *str;

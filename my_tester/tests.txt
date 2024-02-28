@@ -9,11 +9,11 @@
 
 # Invalid infile
 ./pipex no_permission cat cat outfile
-./pipex non_existent cat cat inexistent
+./pipex inexistent cat cat outfile
 
 # Invalid outfile or nonexistent
 ./pipex infile cat cat no_permission
-./pipex infile cat cat inexistent
+# ./pipex infile cat cat inexistent
 
 # Folder as file and commands
 ./pipex folder cat cat outfile
@@ -32,10 +32,10 @@
 ./pipex infile /bin/cata /bin/cata outfile
 ./pipex infile not-executable cat outfile
 ./pipex infile cat not-executable outfile
-./pipex infile ./not-executable ./not-executable outfile	# Mudar esse aqui
-./pipex infile ./notexisting cat outfile					# Mudar esse aqui
-./pipex infile cat ./notexisting outfile					# Mudar esse aqui
-./pipex infile ./notexisting ./notexisting outfile			# Mudar esse aqui
+./pipex infile ./not-executable ./not-executable outfile
+./pipex infile ./notexisting cat outfile
+./pipex infile cat ./notexisting outfile
+./pipex infile ./notexisting ./notexisting outfile
 
 # Valid commands from path
 ./pipex infile cat cat outfile
@@ -43,12 +43,13 @@
 ./pipex infile "grep d" "cat -e" outfile
 ./pipex /dev/urandom "head -n 10" "wc -l" outfile
 ./pipex infile "cat" "tr [a-z] [A-Z]" outfile
-./pipex infile "sed "s/And/But/" "grep But" outfile
+./pipex infile "sed s/And/But/" "grep But" outfile
 ./pipex infile "sleep 5" ls outfile
 ./pipex infile grep cat outfile
 ./pipex infile cat grep outfile
 ./pipex infile grep grep outfile
 ./pipex infile ping cat outfile
+./pipex infile cat ping outfile
 
 # Valid commands absolute path
 ./pipex infile /bin/cat /bin/cat outfile
@@ -56,7 +57,7 @@
 ./pipex infile "/bin/grep d" "/bin/cat -e" outfile
 ./pipex /dev/urandom "/bin/head -n 10" "/bin/wc -l" outfile
 ./pipex infile "/bin/cat" "/bin/tr [a-z] [A-Z]" outfile
-./pipex infile "/bin/sed "s/And/But/" "/bin/grep But" outfile
+./pipex infile "/bin/sed s/And/But/" "/bin/grep But" outfile
 ./pipex infile "/bin/sleep 5" /bin/ls outfile
 ./pipex infile /bin/grep /bin/cat outfile
 ./pipex infile /bin/cat /bin/grep outfile
@@ -68,4 +69,9 @@
 
 # Script as command
 ./pipex infile ./script.sh wc outfile
+./pipex infile ./script.sh cat outfile
+./pipex infile cat ./script.sh outfile
+./pipex infile ./script.sh ./script.sh outfile
 ./pipex infile script.sh cat outfile
+./pipex infile cat script.sh outfile
+./pipex infile script.sh script.sh outfile

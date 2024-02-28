@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 16:16:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/27 11:02:59 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/02/27 23:21:55 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,19 +86,15 @@ char	*get_absolute_path(char *cmd, t_path path)
 	char	*new_command;
 
 	new_command = NULL;
-	if (cmd[0] != '~' && ft_strncmp(cmd, ".", -1) != 0
-		&& ft_strchr(cmd, '/') == NULL)
+	// if (cmd[0] != '~' && ft_strncmp(cmd, ".", -1) != 0 && ft_strchr(cmd, '/') == NULL)
+	if (ft_strchr(cmd, '/') == NULL)
 		new_command = get_from_path(cmd, path);
 	else
 	{
-		if (cmd[0] == '/')
-			new_command = ft_strdup(cmd);
-		else if (ft_strncmp(cmd, "./", 2) == 0 && path.pwd != NULL)
-			new_command = join_paths(path.pwd, cmd + 2);
-		else if (cmd[0] == '~' && path.home != NULL)
+		if (cmd[0] == '~' && path.home != NULL)
 			new_command = join_paths(path.home, cmd + 1);
-		else if (path.pwd != NULL)
-			new_command = join_paths(path.pwd, cmd);
+		else
+			new_command = ft_strdup(cmd);
 	}
 	return (new_command);
 }
