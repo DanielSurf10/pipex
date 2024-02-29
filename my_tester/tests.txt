@@ -45,6 +45,9 @@
 ./pipex infile ./notexisting cat outfile
 ./pipex infile cat ./notexisting outfile
 ./pipex infile ./notexisting ./notexisting outfile
+./pipex infile ./not_script cat outfile
+./pipex infile cat ./not_script outfile
+./pipex infile ./not_script ./not_script outfile
 
 # Valid commands from path
 ./pipex infile cat cat outfile
