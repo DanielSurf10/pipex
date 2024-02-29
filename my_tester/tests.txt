@@ -10,6 +10,7 @@
 # Invalid infile
 ./pipex no_permission cat cat outfile
 ./pipex inexistent cat cat outfile
+./pipex folder cat cat outfile
 
 # Invalid outfile or nonexistent
 ./pipex infile cat cat no_permission
@@ -22,6 +23,14 @@
 ./pipex infile folder cat outfile
 ./pipex infile cat folder outfile
 ./pipex infile folder folder outfile
+./pipex infile ./folder cat outfile
+./pipex infile cat ./folder outfile
+./pipex . cat cat outfile
+./pipex .. cat cat outfile
+./pipex / cat cat outfile
+./pipex infile cat cat .
+./pipex infile cat cat ..
+./pipex infile cat cat /
 
 # Invalid commands
 ./pipex infile cata cat outfile
