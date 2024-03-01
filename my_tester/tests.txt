@@ -11,6 +11,9 @@
 ./pipex no_permission cat cat outfile
 ./pipex inexistent cat cat outfile
 ./pipex folder cat cat outfile
+./pipex no_permission ls ls outfile
+./pipex inexistent ls ls outfile
+./pipex folder ls ls outfile
 
 # Invalid outfile or nonexistent
 ./pipex infile cat cat no_permission
