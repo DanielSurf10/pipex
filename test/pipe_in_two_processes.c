@@ -6,13 +6,11 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 23:36:34 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/20 19:03:27 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/01 13:59:20 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/wait.h>
+#include "pipex.h"
 
 int main()
 {

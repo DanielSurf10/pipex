@@ -6,31 +6,30 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/10 22:38:49 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/18 23:39:47 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/01 13:58:10 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <stdio.h>
-#include <unistd.h>
+#include "pipex.h"
 
 int main()
 {
 	int pid;
+	int ret_code;
 
-	puts("Comaçando!");
+	puts("Processo pai!");
 
 	pid = fork();
 
-	if (pid != 0)
+	if (pid == 0)
 	{
-		printf("%5d - Bom dia\n", pid);
-		pid = fork();
+		puts("processo filho!");
+		return (12);
 	}
-	else
-		printf("%5d - Batata\n", pid);
 
-	printf("%5d - Alo\n", pid);
+	waitpid(pid, &ret_code, 0);
 
+	printf("pid: %5d\nreturn: %d\n", pid, (ret_code >> 8) & 0xff);
 
 	return (0);
 }
