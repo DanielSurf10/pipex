@@ -6,11 +6,39 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/29 16:59:19 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/02 19:25:56 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>
+# include <unistd.h>
+# include <fcntl.h>
+# include <sys/wait.h>
+# include <errno.h>
+
+# include "libft.h"
+
+typedef struct s_path
+{
+	char	*home;
+	char	**path;
+}	t_path;
+
+typedef struct s_pipex
+{
+	int		fd_file_in;
+	int		fd_file_out;
+	int		fd_pipe[2];
+	int		pid[2];
+	int		type;
+	int		return_code;
+	char	*command;
+	char	**argv;
+	char	**envp;
+	t_path	path;
+}	t_pipex;
 
 //	Passos da execução
 //
@@ -58,13 +86,143 @@
 //
 //	8 - Faz o segundo fork
 
+char	**split_path(char *str)
+{
+	char	*start;
+	char	**split;
+
+	start = ft_strchr(str, '=') + 1;
+	split = ft_split(start, ':');
+	return (split);
+}
+
+char	*join_paths(char *absolute, char *relative)
+{
+	char	total_size;
+	int		absolute_size;
+	char	*str;
+
+	absolute_size = ft_strlen(absolute);
+	if (absolute[absolute_size - 1] == '/')
+		absolute_size--;
+	if (relative[0] == '/')
+		relative++;
+	total_size = absolute_size + ft_strlen(relative) + 2;
+	str = malloc(total_size);
+	ft_strlcpy(str, absolute, total_size);
+	str[absolute_size] = '/';
+	str[absolute_size + 1] = '\0';
+	ft_strlcat(str, relative, total_size);
+	return (str);
+}
+
+t_path	get_path_variables(char **envp)
+{
+	int		i;
+	t_path	path;
+
+	i = 0;
+	ft_bzero(&path, sizeof(t_path));
+	while (envp && envp[i])
+	{
+		if (ft_strncmp(envp[i], "PATH", 4) == 0)
+			path.path = split_path(envp[i]);
+		else if (ft_strncmp(envp[i], "HOME", 3) == 0)
+			path.home = ft_strdup(ft_strchr(envp[i], '=') + 1);
+		i++;
+	}
+	return (path);
+}
+
+char	*get_from_path(char *cmd, t_path path)
+{
+	int		i;
+	char	*new_command;
+
+	i = 0;
+	new_command = NULL;
+	while (path.path && path.path[i])
+	{
+		new_command = join_paths(path.path[i], cmd);
+		if (access(new_command, F_OK | X_OK) == 0)
+			break ;
+		free(new_command);
+		new_command = NULL;
+		i++;
+	}
+	return (new_command);
+}
+
+char	*get_absolute_path(char *cmd, t_path path)
+{
+	char	*new_command;
+
+	new_command = NULL;
+	// if (cmd[0] != '~' && ft_strncmp(cmd, ".", -1) != 0 && ft_strchr(cmd, '/') == NULL)
+	if (ft_strchr(cmd, '/') == NULL)
+		new_command = get_from_path(cmd, path);
+	else
+	{
+		if (cmd[0] == '~' && path.home != NULL)
+			new_command = join_paths(path.home, cmd + 1);
+		else
+			new_command = ft_strdup(cmd);
+	}
+	return (new_command);
+}
+
+void	exec_process(t_pipex command)
+{
+	int		return_code;
+	char	*cmd_expanded;
+	char	**cmd_args;
+
+	if (command.fd_file_in != -1)
+	{
+		cmd_args = ft_split(command.command, ' ');
+		cmd_expanded = get_absolute_path(cmd_args[0], command.path);
+
+		dup2(command.fd_file_in, STDIN_FILENO);
+		dup2(command.fd_pipe[1], STDOUT_FILENO);
+
+		close(command.fd_file_in);
+		close(command.fd_file_out);
+
+		close(command.fd_pipe[0]);
+		close(command.fd_pipe[1]);
+
+		if (access(cmd_args[0], F_OK | X_OK) == 0)
+			execve(cmd_args[0], cmd_args, command.envp);
+
+		ft_free_split(cmd_args);
+
+		perror(cmd_args[0]);
+
+		if (access(cmd_args[0], F_OK) != 0)
+			exit(127);
+		else if (access(cmd_args[0], X_OK))
+			exit(126);
+	}
+	else
+	{
+		close(command.fd_file_in);
+		close(command.fd_file_out);
+
+		close(command.fd_pipe[0]);
+		close(command.fd_pipe[1]);
+	}
+	exit(1);
+}
+
 int main(int argc, char *argv[], char *envp[])
 {
-	int	fd_file_in;
-	int	fd_file_out;
-	int	fd[2];
-	int	pid[2];
-	int	error;
+	// int		fd_file_in;
+	// int		fd_file_out;
+	// int		fd_pipe[2];
+	// int		pid[2];
+	// int		error;
+	t_pipex	command;
+	char	**args;
 
 	if (argc != 5)
 	{
@@ -72,12 +230,14 @@ int main(int argc, char *argv[], char *envp[])
 		return (1);
 	}
 
-	fd_file_in = open(argv[1], O_RDONLY);
-	if (fd_file_in < 0)
+	command.path = get_path_variables(envp);
+
+	command.fd_file_in = open(argv[1], O_RDONLY);
+	if (command.fd_file_in < 0)
 		perror("Invalid input file");
 
-	fd_file_out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd_file_out < 0)
+	command.fd_file_out = open(argv[argc - 1], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (command.fd_file_out < 0)
 		perror("Invalid output file");
 
 	// Aqui dá leak de fd do fd_file_out, se der ruim, quando o arquivo de entrada não existir
@@ -87,24 +247,25 @@ int main(int argc, char *argv[], char *envp[])
 	// if (fd_file_in < 0)		// Se o arquivo existir e não tiver pemissão
 	// 	return(0);
 
-	pipe(fd);
-	pid[0] = fork();
+	command.envp = envp;
+	pipe(command.fd_pipe);
+	command.pid[0] = fork();
 
-	if (pid[0] == 0)
+	if (command.pid[0] == 0)
 	{
 		// Processo filho primeiro comando
-		char **args = ft_split(argv[2], ' ');
+		args = ft_split(argv[2], ' ');
 
-		if (fd_file_in != -1)
+		if (command.fd_file_in != -1)
 		{
-			dup2(fd_file_in, STDIN_FILENO);
-			dup2(fd[1], STDOUT_FILENO);
+			dup2(command.fd_file_in, STDIN_FILENO);
+			dup2(command.fd_pipe[1], STDOUT_FILENO);
 
-			close(fd_file_in);
-			close(fd_file_out);
+			close(command.fd_file_in);
+			close(command.fd_file_out);
 
-			close(fd[0]);
-			close(fd[1]);
+			close(command.fd_pipe[0]);
+			close(command.fd_pipe[1]);
 
 			if (access(args[0], F_OK | X_OK) == 0)
 				execve(args[0], args, envp);
@@ -112,62 +273,76 @@ int main(int argc, char *argv[], char *envp[])
 			ft_free_split(args);
 
 			// write(2, "Deu ruim 1\n", 11);
-			perror("Commmand 1");
+			perror(args[0]);
 
-			if (access(args[0], F_OK | X_OK) != 0)
-				return (127);
-			else if (errno == EACCES)
-				return (126);
+			if (access(args[0], F_OK) != 0)
+				exit(127);
+			else if (access(args[0], X_OK))
+				exit(126);
 		}
 		else
-			return (1);
+		{
+			close(command.fd_file_in);
+			close(command.fd_file_out);
+
+			close(command.fd_pipe[0]);
+			close(command.fd_pipe[1]);
+		}
+		exit(1);
 	}
 
-	pid[1] = fork();
+	command.pid[1] = fork();
 
-	if (pid[1] == 0)
+	if (command.pid[1] == 0)
 	{
 		// Processo filho segundo comando
-		char **args = ft_split(argv[3], ' ');
+		args = ft_split(argv[3], ' ');
 
-		dup2(fd[0], STDIN_FILENO);
-		dup2(fd_file_out, STDOUT_FILENO);
-
-		close(fd[0]);
-		close(fd[1]);
-
-		close(fd_file_in);
-		close(fd_file_out);
-
-		if (fd_file_out != -1 && access(args[0], F_OK | X_OK) == 0)
-			execve(args[0], args, envp);
-
-		ft_free_split(args);
-
-		// write(2, "Deu ruim 2\n", 11);
-		if (fd_file_in != -1)
+		if (command.fd_file_in != -1)
 		{
-			perror("Commmand 2");
+			dup2(command.fd_pipe[0], STDIN_FILENO);
+			dup2(command.fd_file_out, STDOUT_FILENO);
 
-			if (access(args[0], F_OK | X_OK) != 0)
-				return (127);
-			else if (errno == EACCES)
-				return (126);
+			close(command.fd_file_in);
+			close(command.fd_file_out);
+
+			close(command.fd_pipe[0]);
+			close(command.fd_pipe[1]);
+
+			if (access(args[0], F_OK | X_OK) == 0)
+				execve(args[0], args, envp);
+
+			ft_free_split(args);
+
+			// write(2, "Deu ruim 1\n", 11);
+			perror(args[0]);
+
+			if (access(args[0], F_OK) != 0)
+				exit(127);
+			else if (access(args[0], X_OK))
+				exit(126);
 		}
 		else
-			return (1);
+		{
+			close(command.fd_file_in);
+			close(command.fd_file_out);
+
+			close(command.fd_pipe[0]);
+			close(command.fd_pipe[1]);
+		}
+		exit(1);
 	}
 
-	waitpid(pid[0], NULL, 0);
+	waitpid(command.pid[0], NULL, 0);
 
-	close(fd[0]);
-	close(fd[1]);
-	close(fd_file_in);
-	close(fd_file_out);
+	close(command.fd_pipe[0]);
+	close(command.fd_pipe[1]);
+	close(command.fd_file_in);
+	close(command.fd_file_out);
 
-	waitpid(pid[1], &error, 0);
+	waitpid(command.pid[1], &command.return_code, 0);
 
-	return ((error >> 8) & 0xFF);
+	return ((command.return_code >> 8) & 0xFF);
 }
 
 // ./pipex /proc/$$/fd/0 "/bin/cat -e" "/bin/grep a" /proc/$$/fd/1

@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:56:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/24 13:13:43 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/02 19:13:26 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,8 +237,7 @@ int	exec_proc(t_command command, t_path path)
 		return_code = 1;
 
 	ft_free_split(command_split);
-	if (command_absolute)
-		free(command_absolute);
+	free(command_absolute);
 	free(path.home);
 	free(path.pwd);
 	ft_free_split(path.path);
