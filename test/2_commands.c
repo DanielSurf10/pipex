@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/02 19:25:56 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/04 11:46:27 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,7 @@ t_path	get_path_variables(char **envp)
 	return (path);
 }
 
-char	*get_from_path(char *cmd, t_path path)
+char	*expand_from_path(char *cmd, t_path path)
 {
 	int		i;
 	char	*new_command;
@@ -153,14 +153,14 @@ char	*get_from_path(char *cmd, t_path path)
 	return (new_command);
 }
 
-char	*get_absolute_path(char *cmd, t_path path)
+char	*expand_path(char *cmd, t_path path)
 {
 	char	*new_command;
 
 	new_command = NULL;
 	// if (cmd[0] != '~' && ft_strncmp(cmd, ".", -1) != 0 && ft_strchr(cmd, '/') == NULL)
 	if (ft_strchr(cmd, '/') == NULL)
-		new_command = get_from_path(cmd, path);
+		new_command = expand_from_path(cmd, path);
 	else
 	{
 		if (cmd[0] == '~' && path.home != NULL)
@@ -180,7 +180,7 @@ void	exec_process(t_pipex command)
 	if (command.fd_file_in != -1)
 	{
 		cmd_args = ft_split(command.command, ' ');
-		cmd_expanded = get_absolute_path(cmd_args[0], command.path);
+		cmd_expanded = expand_path(cmd_args[0], command.path);
 
 		dup2(command.fd_file_in, STDIN_FILENO);
 		dup2(command.fd_pipe[1], STDOUT_FILENO);

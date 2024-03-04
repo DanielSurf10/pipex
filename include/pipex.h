@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 20:44:08 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/26 18:15:33 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/04 20:28:28 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ enum e_fd
 enum e_process
 {
 	FIRST = 0,
+	MID,
 	LAST
 };
 
@@ -42,35 +43,34 @@ enum e_process
 typedef struct s_path
 {
 	char	*home;
-	char	*pwd;
 	char	**path;
 }	t_path;
 
-typedef struct s_pipex
+typedef struct s_command
 {
+	int		i;
 	int		fd_file_in;
 	int		fd_file_out;
-	int		fd_pipe[2];
-	int		pid[2];
-	int		type;
-	int		return_code;
-	char	*command;
+	int		num_cmds;
+	int		*fd_pipes;
+	int		*pid;
 	char	**argv;
 	char	**envp;
 	t_path	path;
-}	t_pipex;
+}	t_command;
 
 // Functions
 
 // main
-int		exec_command(t_pipex command);
+void	exec_process(t_command command, int type, int cmd_num);
 
 // path
 t_path	get_path_variables(char **envp);
-char	*get_absolute_path(char *cmd, t_path path);
+char	*expand_path(char *cmd, t_path path);
 
 // utils
 void	close_pipe(int *fd_pipe);
 void	set_dup2(int fd_in, int fd_out);
+void	free_all(t_command command);
 
 #endif

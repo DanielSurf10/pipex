@@ -6,38 +6,39 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:56:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/02 19:13:26 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/04 19:24:58 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-enum e_process
-{
-	FIRST = 0,
-	MID,
-	LAST
-};
+// enum e_process
+// {
+// 	FIRST = 0,
+// 	MID,
+// 	LAST
+// };
 
-typedef struct s_command
-{
-	int		type;
-	int		fd_pipe_in[2];
-	int		fd_pipe_out[2];
-	int		fd_file_in;
-	int		fd_file_out;
-	char	*command;
-	char	**envp;
-}	t_command;
+// typedef struct s_path
+// {
+// 	char	*home;
+// 	// char	*pwd;
+// 	char	**path;
+// }	t_path;
 
-typedef struct s_path
-{
-	char	*home;
-	char	*pwd;
-	char	**path;
-}	t_path;
+// typedef struct s_command
+// {
+// 	int		fd_file_in;
+// 	int		fd_file_out;
+// 	int		num_cmds;
+// 	int		*fd_pipes;
+// 	int		*pid;
+// 	char	**argv;
+// 	char	**envp;
+// 	t_path	path;
+// }	t_command;
 
-char	**get_split(char *str)
+char	**split_path(char *str)
 {
 	char	*start;
 	char	**split;
@@ -67,18 +68,17 @@ char	*join_paths(char *absolute, char *relative)
 	return (str);
 }
 
-t_path	get_path_variables(char *envp[])
+t_path	get_path_variables(char **envp)
 {
 	int		i;
 	t_path	path;
 
 	i = 0;
-	while (envp[i])
+	ft_bzero(&path, sizeof(t_path));
+	while (envp && envp[i])
 	{
 		if (ft_strncmp(envp[i], "PATH", 4) == 0)
-			path.path = get_split(envp[i]);
-		else if (ft_strncmp(envp[i], "PWD", 3) == 0)
-			path.pwd = ft_strdup(ft_strchr(envp[i], '=') + 1);
+			path.path = split_path(envp[i]);
 		else if (ft_strncmp(envp[i], "HOME", 3) == 0)
 			path.home = ft_strdup(ft_strchr(envp[i], '=') + 1);
 		i++;
@@ -86,44 +86,39 @@ t_path	get_path_variables(char *envp[])
 	return (path);
 }
 
-char	*get_command_from_path(char *cmd, t_path path)
+char	*expand_from_path(char *cmd, t_path path)
+{
+	int		i;
+	char	*new_command;
+
+	i = 0;
+	new_command = NULL;
+	while (path.path && path.path[i])
+	{
+		new_command = join_paths(path.path[i], cmd);
+		if (access(new_command, F_OK | X_OK) == 0)
+			break ;
+		free(new_command);
+		new_command = NULL;
+		i++;
+	}
+	return (new_command);
+}
+
+char	*expand_path(char *cmd, t_path path)
 {
 	char	*new_command;
 
 	new_command = NULL;
-	if (ft_strchr(cmd, '/') == NULL && cmd[0] != '~')
-	{
-		for (int i = 0; path.path[i]; i++)
-		{
-			new_command = join_paths(path.path[i], cmd);
-			// printf("%s\n", new_command);
-			if (access(new_command, F_OK | X_OK) == 0)
-				break ;
-			free(new_command);
-			new_command = NULL;
-		}
-		// if (new_command == NULL)
-		// 	new_command = ft_strdup(cmd);
-	}
+	// if (cmd[0] != '~' && ft_strncmp(cmd, ".", -1) != 0 && ft_strchr(cmd, '/') == NULL)
+	if (ft_strchr(cmd, '/') == NULL)
+		new_command = expand_from_path(cmd, path);
 	else
 	{
-		// int command_size = ft_strlen(cmd);
-		// if (cmd[command_size - 1] == '/')
-		// 	cmd[command_size - 1] = '\0';
-
-		if (cmd[0] == '/')
-			new_command = ft_strdup(cmd);
-		else if (cmd[0] == '~')
-		{
-			if (cmd[1] == '/')
-				new_command = join_paths(path.home, cmd + 2);
-			else
-				new_command = join_paths(path.home, cmd + 1);
-		}
-		else if (ft_strncmp(cmd, "./", 2) == 0)
-			new_command = join_paths(path.pwd, cmd + 2);
+		if (cmd[0] == '~' && path.home != NULL)
+			new_command = join_paths(path.home, cmd + 1);
 		else
-			new_command = join_paths(path.pwd, cmd);
+			new_command = ft_strdup(cmd);
 	}
 	return (new_command);
 }
@@ -135,7 +130,7 @@ char	*get_command_from_path(char *cmd, t_path path)
 //	- pipe de saída   - escrita	- usado
 //		- fd[0] (leitura) não usado
 //		- fd[1] (escrita) usado
-
+//
 // Comandos do meio:
 //	- fd_file_in				- não usado
 //	- fd_file_out				- não usado
@@ -145,7 +140,7 @@ char	*get_command_from_path(char *cmd, t_path path)
 //	- pipe de saída   - escrita	- usado
 //		- fd[0] (leitura) não usado
 //		- fd[1] (escrita) usado
-
+//
 // Último comando:
 //	- fd_file_in				- não usado
 //	- fd_file_out				- usado
@@ -160,89 +155,95 @@ void	close_pipe(int *fd_pipe)
 	close(fd_pipe[1]);
 }
 
-int	exec_proc(t_command command, t_path path)
+void	set_dup2(int fd_in, int fd_out)
 {
-	int		return_code;
-	char	*command_absolute;
-	char	**command_split;
-
-	command_split = ft_split(command.command, ' ');
-	// printf("%s\n", command_split[0]);
-	command_absolute = get_command_from_path(command_split[0], path);
-
-	// Se for o primeiro ele deve:
-	//	- Fazer o dup2 com command.fd_file_in e STDIN_FILENO
-	//	- Fazer o dup2 com command.fd_pipe_out[WRITE] e STDOUT_FILENO
-	//	- Fechar o fd do arquivo de entrada - command.fd_file_in
-	//	- Fechar o fd do arquivo de saída - command.fd_file_out
-	//	- Fechar a leitura do pipe de entrada - command.fd_pipe_in[READ]
-	//	- Fechar a escrita do pipe de saída - command.fd_pipe_out[WRITE]
-	if (command.type == FIRST)
-	{
-		dup2(command.fd_file_in, STDIN_FILENO);
-		dup2(command.fd_pipe_out[WRITE], STDOUT_FILENO);
-
-		close(command.fd_file_in);
-		close(command.fd_file_out);
-		close_pipe(command.fd_pipe_out);
-	}
-
-	// Se for algum comando do meio ele deve:
-	//	- Fazer o dup2 com command.fd_pipe_in[READ] e STDIN_FILENO
-	//	- Fazer o dup2 com command.fd_pipe_out[WRITE] e STDOUT_FILENO
-	//	- Fechar os fd's dos 2 arquivos, entrada e saída
-	//	- Fechar a leitura do pipe de entrada - command.fd_pipe_in[READ]
-	//	- Fechar a escrita do pipe de entrada - command.fd_pipe_in[WRITE]
-	//	- Fechar a leitura do pipe de saída - command.fd_pipe_out[READ]
-	//	- Fechar a escrita do pipe de saíða - command.fd_pipe_out[WRITE]
-	else if (command.type == MID)
-	{
-		dup2(command.fd_pipe_in[READ], STDIN_FILENO);
-		dup2(command.fd_pipe_out[WRITE], STDOUT_FILENO);
-
-		close(command.fd_file_in);
-		close(command.fd_file_out);
-		close_pipe(command.fd_pipe_in);
-		close_pipe(command.fd_pipe_out);
-	}
-
-	// Se for o último comando ele deve:
-	//	- Fazer o dup2 com command.fd_pipe_in[READ] e STDIN_FILENO
-	//	- Fazer o dup2 com command.fd_file_out e STDOUT_FILENO
-	//	- Fechar o fd do arquivo de entrada - command.fd_file_in
-	//	- Fechar o fd do arquivo de saída - command.fd_file_out
-	//	- Fechar a leitura do pipe de entrada - command.fd_pipe_in[READ]
-	//	- Fechar a escrita do pipe de entrada - command.fd_pipe_in[WRITE]
-	else
-	{
-		dup2(command.fd_pipe_in[READ], STDIN_FILENO);
-		dup2(command.fd_file_out, STDOUT_FILENO);
-
-		close(command.fd_file_in);
-		close(command.fd_file_out);
-		close_pipe(command.fd_pipe_in);
-	}
-
-	if (command_absolute && access(command_absolute, F_OK | X_OK) == 0)
-		execve(command_absolute, command_split, command.envp);
-
-	// write(2, "Deu ruim 1\n", 11);
-	perror(command_absolute);
-
-	if (!command_absolute || access(command_absolute, F_OK) != 0)
-		return_code = 127;
-	else if (access(command_absolute, X_OK) != 0)
-		return_code = 126;
-	else
-		return_code = 1;
-
-	ft_free_split(command_split);
-	free(command_absolute);
-	free(path.home);
-	free(path.pwd);
-	ft_free_split(path.path);
-	return (return_code);
+	dup2(fd_in, STDIN_FILENO);
+	dup2(fd_out, STDOUT_FILENO);
 }
+
+// int	exec_proc(t_command command, t_path path)
+// {
+// 	int		return_code;
+// 	char	*command_absolute;
+// 	char	**command_split;
+//
+// 	command_split = ft_split(command.command, ' ');
+// 	// printf("%s\n", command_split[0]);
+// 	command_absolute = get_command_from_path(command_split[0], path);
+//
+// 	// Se for o primeiro ele deve:
+// 	//	- Fazer o dup2 com command.fd_file_in e STDIN_FILENO
+// 	//	- Fazer o dup2 com command.fd_pipe_out[WRITE] e STDOUT_FILENO
+// 	//	- Fechar o fd do arquivo de entrada - command.fd_file_in
+// 	//	- Fechar o fd do arquivo de saída - command.fd_file_out
+// 	//	- Fechar a leitura do pipe de entrada - command.fd_pipe_in[READ]
+// 	//	- Fechar a escrita do pipe de saída - command.fd_pipe_out[WRITE]
+// 	if (command.type == FIRST)
+// 	{
+// 		dup2(command.fd_file_in, STDIN_FILENO);
+// 		dup2(command.fd_pipe_out[WRITE], STDOUT_FILENO);
+//
+// 		close(command.fd_file_in);
+// 		close(command.fd_file_out);
+// 		close_pipe(command.fd_pipe_out);
+// 	}
+//
+// 	// Se for algum comando do meio ele deve:
+// 	//	- Fazer o dup2 com command.fd_pipe_in[READ] e STDIN_FILENO
+// 	//	- Fazer o dup2 com command.fd_pipe_out[WRITE] e STDOUT_FILENO
+// 	//	- Fechar os fd's dos 2 arquivos, entrada e saída
+// 	//	- Fechar a leitura do pipe de entrada - command.fd_pipe_in[READ]
+// 	//	- Fechar a escrita do pipe de entrada - command.fd_pipe_in[WRITE]
+// 	//	- Fechar a leitura do pipe de saída - command.fd_pipe_out[READ]
+// 	//	- Fechar a escrita do pipe de saíða - command.fd_pipe_out[WRITE]
+// 	else if (command.type == MID)
+// 	{
+// 		dup2(command.fd_pipe_in[READ], STDIN_FILENO);
+// 		dup2(command.fd_pipe_out[WRITE], STDOUT_FILENO);
+//
+// 		close(command.fd_file_in);
+// 		close(command.fd_file_out);
+// 		close_pipe(command.fd_pipe_in);
+// 		close_pipe(command.fd_pipe_out);
+// 	}
+//
+// 	// Se for o último comando ele deve:
+// 	//	- Fazer o dup2 com command.fd_pipe_in[READ] e STDIN_FILENO
+// 	//	- Fazer o dup2 com command.fd_file_out e STDOUT_FILENO
+// 	//	- Fechar o fd do arquivo de entrada - command.fd_file_in
+// 	//	- Fechar o fd do arquivo de saída - command.fd_file_out
+// 	//	- Fechar a leitura do pipe de entrada - command.fd_pipe_in[READ]
+// 	//	- Fechar a escrita do pipe de entrada - command.fd_pipe_in[WRITE]
+// 	else
+// 	{
+// 		dup2(command.fd_pipe_in[READ], STDIN_FILENO);
+// 		dup2(command.fd_file_out, STDOUT_FILENO);
+//
+// 		close(command.fd_file_in);
+// 		close(command.fd_file_out);
+// 		close_pipe(command.fd_pipe_in);
+// 	}
+//
+// 	if (command_absolute && access(command_absolute, F_OK | X_OK) == 0)
+// 		execve(command_absolute, command_split, command.envp);
+//
+// 	// write(2, "Deu ruim 1\n", 11);
+// 	perror(command_absolute);
+//
+// 	if (!command_absolute || access(command_absolute, F_OK) != 0)
+// 		return_code = 127;
+// 	else if (access(command_absolute, X_OK) != 0)
+// 		return_code = 126;
+// 	else
+// 		return_code = 1;
+//
+// 	ft_free_split(command_split);
+// 	free(command_absolute);
+// 	free(path.home);
+// 	free(path.pwd);
+// 	ft_free_split(path.path);
+// 	return (return_code);
+// }
 
 //	Abre os fd's dos arquivos
 //	Verifica se deu erro
@@ -298,18 +299,55 @@ int	exec_proc(t_command command, t_path path)
 //	return ((return_code >> 8) & 0xFF);
 //
 
+void	exec_process(t_command command, int type, int cmd_num)
+{
+	int		i;
+	int		return_code;
+	char	*cmd;
+	char	**args;
+
+	i = 0;
+	return_code = 1;
+	if (type == MID || (type == FIRST && command.fd_file_in != -1)
+		|| (type == LAST && command.fd_file_out != -1))
+	{
+		args = ft_split(command.argv[cmd_num + 2], ' ');
+		cmd = expand_path(args[0], command.path);
+		if (type == FIRST)
+			set_dup2(command.fd_file_in, command.fd_pipes[(cmd_num * 2) + 1]);
+		else if (type == MID)
+			set_dup2(command.fd_pipes[(cmd_num - 1) * 2],
+				command.fd_pipes[(cmd_num * 2) + 1]);
+		else if (type == LAST)
+			set_dup2(command.fd_pipes[(cmd_num - 1) * 2], command.fd_file_out);
+		close(command.fd_file_in);
+		close(command.fd_file_out);
+		while (i < cmd_num * 2)
+		{
+			close_pipe(command.fd_pipes + i);
+			i += 2;
+		}
+		if (cmd && access(cmd, F_OK | X_OK) == 0)
+			execve(cmd, args, command.envp);
+		if (!cmd || access(cmd, F_OK) != 0)
+			return_code = 127;
+		else if (access(cmd, X_OK) != 0)
+			return_code = 126;
+		free(cmd);
+		ft_free_split(args);
+	}
+	free(command.pid);
+	free(command.fd_pipes);
+	free(command.path.home);
+	ft_free_split(command.path.path);
+	exit(return_code);
+}
+
 int	main(int argc, char *argv[], char *envp[])
 {
-	// int	fd_file_in;
-	// int	fd_file_out;
-	// int	fd[2];
-	// int	fd2[2];
-	// int	pid[3];
 	t_command	command;
-	t_path		path;
-	int			command_iter;
+	int			i;
 	int			return_code;
-	int			*pid;
 
 	if (argc < 5)
 	{
@@ -327,75 +365,51 @@ int	main(int argc, char *argv[], char *envp[])
 	if (command.fd_file_out < 0)
 		perror("Invalid output file");
 
-	if (command.fd_file_in < 0 || command.fd_file_out < 0)
-		return(1);
+	command.path = get_path_variables(envp);
 
-	path = get_path_variables(envp);
-
-	command_iter = 3;
+	i = 1;
+	command.num_cmds = argc - 3;
+	command.argv = argv;
 	command.envp = envp;
-	pid = malloc(sizeof(int) * (argc - 3));
+	command.pid = malloc(sizeof(int) * (command.num_cmds));
+	command.fd_pipes = malloc(sizeof(int) * (command.num_cmds - 1) * 2);
 
-	pipe(command.fd_pipe_out);
-	pid[0] = fork();
+	pipe(command.fd_pipes);
+	command.pid[0] = fork();
 
-	if (pid[0] == 0)
+	if (command.pid[0] == 0)
+		exec_process(command, FIRST, 0);
+
+	while (i < command.num_cmds - 1)
 	{
-		free(pid);
-		command.command = argv[2];		// Primeiro comando
-		command.type = FIRST;
-		printf("%s\n", command.command);
-		return (exec_proc(command, path));
+		pipe(command.fd_pipes + (i * 2));
+		command.pid[i] = fork();
+		if (command.pid[i] == 0)
+			exec_process(command, MID, i);
+		i++;
 	}
 
-	command.type = MID;
-	while (command_iter < argc - 2)
-	{
-		if (command_iter > 3)
-			close_pipe(command.fd_pipe_in);
-		ft_memcpy(command.fd_pipe_in, command.fd_pipe_out, sizeof(int) * 2);
-		pipe(command.fd_pipe_out);
-		pid[command_iter - 2] = fork();
+	command.pid[command.num_cmds - 1] = fork();
 
-		if (pid[command_iter - 2] == 0)
-		{
-			free(pid);
-			command.command = argv[command_iter];
-			printf("%s\n", command.command);
-			return (exec_proc(command, path));
-		}
-		command_iter++;
-	}
+	if (command.pid[command.num_cmds - 1] == 0)
+		exec_process(command, LAST, command.num_cmds - 1);
 
-	if (argc - 3 > 2)	// Não tem pipe_in se só tiver 2 comandos
-		close_pipe(command.fd_pipe_in);
-	ft_memcpy(command.fd_pipe_in, command.fd_pipe_out, sizeof(int) * 2);
-	pid[command_iter - 2] = fork();
-	command.type = LAST;
-
-	if (pid[command_iter - 2] == 0)
-	{
-		free(pid);
-		command.command = argv[command_iter];
-		printf("%s\n", command.command);
-		return (exec_proc(command, path));
-	}
-
-	close_pipe(command.fd_pipe_in);
 	close(command.fd_file_in);
 	close(command.fd_file_out);
 
-	command_iter = 0;
-	while (command_iter < (argc - 3))
+	i = 0;
+
+	while (i < (command.num_cmds - 1))
 	{
-		waitpid(pid[command_iter], &return_code, 0);
-		command_iter++;
+		waitpid(command.pid[i], NULL, 0);
+		close_pipe(command.fd_pipes + ((i++) * 2));
 	}
 
-	free(pid);
-	free(path.home);
-	free(path.pwd);
-	ft_free_split(path.path);
+	waitpid(command.pid[i], &return_code, 0);
+	free(command.path.home);
+	free(command.pid);
+	free(command.fd_pipes);
+	ft_free_split(command.path.path);
 
 	return ((return_code >> 8) & 0xFF);
 }

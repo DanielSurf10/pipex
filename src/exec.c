@@ -6,65 +6,74 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 16:06:23 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/28 00:16:52 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/04 20:44:57 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-void	dup2_and_close(t_pipex command)
+static void	close_pipes(t_command command, int cmd_num)
 {
-	if (command.type == FIRST)
-		set_dup2(command.fd_file_in, command.fd_pipe[WRITE]);
-	else
-		set_dup2(command.fd_pipe[READ], command.fd_file_out);
+	int	i;
+
+	i = 0;
 	close(command.fd_file_in);
 	close(command.fd_file_out);
-	close_pipe(command.fd_pipe);
-}
-
-int	error_manag(t_pipex command, char *command_absolute)
-{
-	int	return_code;
-
-	if (!command_absolute || access(command_absolute, F_OK) != 0)
+	while (i < cmd_num * 2)
 	{
-		ft_putendl_fd(": command not found", 2);
-		return_code = 127;
+		close_pipe(command.fd_pipes + i);
+		i += 2;
 	}
-	else if (access(command_absolute, X_OK) != 0)
+}
+
+static void	change_input_and_output(t_command command, int type, int cmd_num)
+{
+	if (type == FIRST)
+		set_dup2(command.fd_file_in, command.fd_pipes[(cmd_num * 2) + 1]);
+	else if (type == MID)
+		set_dup2(command.fd_pipes[(cmd_num - 1) * 2],
+			command.fd_pipes[(cmd_num * 2) + 1]);
+	else if (type == LAST)
+		set_dup2(command.fd_pipes[(cmd_num - 1) * 2], command.fd_file_out);
+}
+
+void	error_message(char *cmd, int *return_code)
+{
+	if (!cmd || access(cmd, F_OK) != 0)
 	{
-		ft_putstr_fd(": Permission denied", 2);
-		return_code = 126;
+		ft_putendl_fd(": Command not found", 2);
+		*return_code = 127;
 	}
-	else
-		return_code = 1;
-	return (return_code);
+	else if (access(cmd, X_OK) != 0)
+	{
+		ft_putendl_fd(": Permission denied", 2);
+		*return_code = 126;
+	}
 }
 
-void	free_all(t_pipex command, char	*command_absolute, char	**command_split)
+void	exec_process(t_command command, int type, int cmd_num)
 {
-	if (command_absolute)
-		free(command_absolute);
-	free(command.path.pwd);
-	free(command.path.home);
-	ft_free_split(command_split);
-	ft_free_split(command.path.path);
-}
-
-int	exec_command(t_pipex command)
-{
+	int		i;
 	int		return_code;
-	char	*command_absolute;
-	char	**command_split;
+	char	*cmd;
+	char	**args;
 
-	command_split = ft_split(command.command, ' ');
-	command_absolute = get_absolute_path(command_split[0], command.path);
-	dup2_and_close(command);
-	if (command_absolute && access(command_absolute, F_OK | X_OK) == 0)
-		execve(command_absolute, command_split, command.envp);
-	ft_putstr_fd(command_split[0], 2);
-	return_code = error_manag(command, command_absolute);
-	free_all(command, command_absolute, command_split);
-	return (return_code);
+	i = 0;
+	return_code = 1;
+	if (type == MID || (type == FIRST && command.fd_file_in != -1)
+		|| (type == LAST && command.fd_file_out != -1))
+	{
+		args = ft_split(command.argv[cmd_num + 2], ' ');
+		cmd = expand_path(args[0], command.path);
+		change_input_and_output(command, type, cmd_num);
+		close_pipes(command, cmd_num);
+		if (cmd && access(cmd, F_OK | X_OK) == 0)
+			execve(cmd, args, command.envp);
+		ft_putstr_fd(args[0], 2);
+		error_message(cmd, &return_code);
+		free(cmd);
+		ft_free_split(args);
+	}
+	free_all(command);
+	exit(return_code);
 }

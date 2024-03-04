@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_from_path.c                                    :+:      :+:    :+:   */
+/*   expand_from_path.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/13 17:12:06 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/27 10:28:20 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/04 11:45:11 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@
 // 	char	**path;
 // }	t_path;
 
-char	**get_split(char *str)
+char	**split_path(char *str)
 {
 	char	*start;
 	char	**split;
@@ -53,18 +53,17 @@ char	*join_paths(char *absolute, char *relative)
 	return (str);
 }
 
-t_path	get_path_variables(char *envp[])
+t_path	get_path_variables(char **envp)
 {
 	int		i;
 	t_path	path;
 
 	i = 0;
-	while (envp[i])
+	ft_bzero(&path, sizeof(t_path));
+	while (envp && envp[i])
 	{
 		if (ft_strncmp(envp[i], "PATH", 4) == 0)
-			path.path = get_split(envp[i]);
-		else if (ft_strncmp(envp[i], "PWD", 3) == 0)
-			path.pwd = ft_strdup(ft_strchr(envp[i], '=') + 1);
+			path.path = split_path(envp[i]);
 		else if (ft_strncmp(envp[i], "HOME", 3) == 0)
 			path.home = ft_strdup(ft_strchr(envp[i], '=') + 1);
 		i++;
@@ -72,50 +71,39 @@ t_path	get_path_variables(char *envp[])
 	return (path);
 }
 
-char	*get_command_from_path(char *cmd, t_path path)
+char	*expand_from_path(char *cmd, t_path path)
+{
+	int		i;
+	char	*new_command;
+
+	i = 0;
+	new_command = NULL;
+	while (path.path && path.path[i])
+	{
+		new_command = join_paths(path.path[i], cmd);
+		if (access(new_command, F_OK | X_OK) == 0)
+			break ;
+		free(new_command);
+		new_command = NULL;
+		i++;
+	}
+	return (new_command);
+}
+
+char	*expand_path(char *cmd, t_path path)
 {
 	char	*new_command;
 
 	new_command = NULL;
-
-	//	Só vai pegar o comando da path se:
-	//		- Não ter "~" na frente do comando - cmd[0]
-	//		- Não ter apenas "." no comando
-	//		- Não ter qualquer "/" em qualquer lugar do comando
-	if (cmd[0] != '~' && ft_strncmp(cmd, ".", -1) != 0
-			&& ft_strchr(cmd, '/') == NULL)
-	{
-		for (int i = 0; path.path[i]; i++)
-		{
-			new_command = join_paths(path.path[i], cmd);
-			printf("%s\n", new_command);
-			if (access(new_command, F_OK | X_OK) == 0)
-				break ;
-			free(new_command);
-			new_command = NULL;
-		}
-		// if (new_command == NULL)
-		// 	new_command = ft_strdup(cmd);
-	}
+	// if (cmd[0] != '~' && ft_strncmp(cmd, ".", -1) != 0 && ft_strchr(cmd, '/') == NULL)
+	if (ft_strchr(cmd, '/') == NULL)
+		new_command = expand_from_path(cmd, path);
 	else
 	{
-		// int command_size = ft_strlen(cmd);
-		// if (cmd[command_size - 1] == '/')
-		// 	cmd[command_size - 1] = '\0';
-
-		if (cmd[0] == '/')
-			new_command = ft_strdup(cmd);
-		else if (cmd[0] == '~')
-		{
-			if (cmd[1] == '/')
-				new_command = join_paths(path.home, cmd + 2);
-			else
-				new_command = join_paths(path.home, cmd + 1);
-		}
-		else if (ft_strncmp(cmd, "./", 2) == 0)
-			new_command = join_paths(path.pwd, cmd + 2);
+		if (cmd[0] == '~' && path.home != NULL)
+			new_command = join_paths(path.home, cmd + 1);
 		else
-			new_command = join_paths(path.pwd, cmd);
+			new_command = ft_strdup(cmd);
 	}
 	return (new_command);
 }
@@ -142,13 +130,12 @@ int main(int argv, char *argc[], char *envp[])
 	// printf("PWD = %s\n", pwd);
 	// printf("HOME = %s\n", home);
 
-	command = get_command_from_path(command_splitted[0], path);
+	command = expand_path(command_splitted[0], path);
 
 	if (command)
 		printf("%s\n", command);
 
 	ft_free_split(path.path);
-	free(path.pwd);
 	free(path.home);
 
 	if (command && access(command, F_OK | X_OK) == 0)

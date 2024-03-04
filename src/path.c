@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 16:16:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/02/27 23:21:55 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/04 20:14:56 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,6 @@ t_path	get_path_variables(char **envp)
 	{
 		if (ft_strncmp(envp[i], "PATH", 4) == 0)
 			path.path = split_path(envp[i]);
-		else if (ft_strncmp(envp[i], "PWD", 3) == 0)
-			path.pwd = ft_strdup(ft_strchr(envp[i], '=') + 1);
 		else if (ft_strncmp(envp[i], "HOME", 3) == 0)
 			path.home = ft_strdup(ft_strchr(envp[i], '=') + 1);
 		i++;
@@ -62,7 +60,7 @@ t_path	get_path_variables(char **envp)
 	return (path);
 }
 
-char	*get_from_path(char *cmd, t_path path)
+char	*expand_from_path(char *cmd, t_path path)
 {
 	int		i;
 	char	*new_command;
@@ -81,14 +79,13 @@ char	*get_from_path(char *cmd, t_path path)
 	return (new_command);
 }
 
-char	*get_absolute_path(char *cmd, t_path path)
+char	*expand_path(char *cmd, t_path path)
 {
 	char	*new_command;
 
 	new_command = NULL;
-	// if (cmd[0] != '~' && ft_strncmp(cmd, ".", -1) != 0 && ft_strchr(cmd, '/') == NULL)
 	if (ft_strchr(cmd, '/') == NULL)
-		new_command = get_from_path(cmd, path);
+		new_command = expand_from_path(cmd, path);
 	else
 	{
 		if (cmd[0] == '~' && path.home != NULL)
