@@ -6,11 +6,59 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:56:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 00:36:14 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/05 10:57:23 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>		// Pode usar se for usar strerror
+# include <unistd.h>
+# include <fcntl.h>
+# include <sys/wait.h>
+# include <errno.h>
+
+# include "libft.h"
+
+// enums
+
+enum e_fd
+{
+	READ = 0,
+	WRITE
+};
+
+enum e_process
+{
+	FIRST = 0,
+	MID,
+	LAST
+};
+
+// structs
+
+typedef struct s_path
+{
+	char	*home;
+	char	**path;
+}	t_path;
+typedef struct s_pipe
+{
+	int	fd_pipe[2];
+}	t_pipe;
+
+typedef struct s_command
+{
+	int		i;
+	int		fd_file_in;
+	int		fd_file_out;
+	int		num_cmds;
+	int		*pid;
+	t_pipe	*pipes;
+	char	**argv;
+	char	**envp;
+	t_path	path;
+}	t_command;
 
 // enum e_process
 // {
@@ -316,12 +364,22 @@ void	exec_process(t_command command, int type, int cmd_num)
 		cmd = expand_path(args[0], command.path);
 
 		if (type == FIRST)
-			set_dup2(command.fd_file_in, command.fd_pipes[(cmd_num * 2) + 1]);
+			set_dup2(command.fd_file_in, command.pipes[cmd_num].fd_pipe[WRITE]);
 		else if (type == MID)
-			set_dup2(command.fd_pipes[(cmd_num - 1) * 2],
-				command.fd_pipes[(cmd_num * 2) + 1]);
+			set_dup2(command.pipes[cmd_num - 1].fd_pipe[READ],
+				command.pipes[cmd_num].fd_pipe[WRITE]);
 		else if (type == LAST)
-			set_dup2(command.fd_pipes[(cmd_num - 1) * 2], command.fd_file_out);
+			set_dup2(command.pipes[cmd_num - 1].fd_pipe[READ], command.fd_file_out);
+
+		while (i < cmd_num || (cmd_num == 0 && i == 0))
+		{
+			close_pipe(command.pipes[i].fd_pipe);
+			i++;
+		}
+		if (command.fd_file_in != -1)
+			close(command.fd_file_in);
+		if (command.fd_file_out != -1)
+			close(command.fd_file_out);
 
 		if (cmd && access(cmd, F_OK | X_OK) == 0)
 			execve(cmd, args, command.envp);
@@ -347,9 +405,12 @@ void	exec_process(t_command command, int type, int cmd_num)
 		free(cmd);
 		ft_free_split(args);
 	}
-
-	while (i < cmd_num * 2 || (cmd_num == 0 && i == 0))
-		close_pipe(command.fd_pipes + (i += 2));
+	else
+		while (i < cmd_num || (cmd_num == 0 && i == 0))
+		{
+			close_pipe(command.pipes[i].fd_pipe);
+			i++;
+		}
 
 	if (command.fd_file_in != -1)
 		close(command.fd_file_in);
@@ -357,7 +418,7 @@ void	exec_process(t_command command, int type, int cmd_num)
 		close(command.fd_file_out);
 
 	free(command.pid);
-	free(command.fd_pipes);
+	free(command.pipes);
 	free(command.path.home);
 	ft_free_split(command.path.path);
 	exit(return_code);
@@ -392,9 +453,9 @@ int	main(int argc, char *argv[], char *envp[])
 	command.argv = argv;
 	command.envp = envp;
 	command.pid = malloc(sizeof(int) * (command.num_cmds));
-	command.fd_pipes = malloc(sizeof(int) * (command.num_cmds - 1) * 2);
+	command.pipes = malloc(sizeof(t_pipe) * (command.num_cmds - 1));
 
-	pipe(command.fd_pipes);
+	pipe(command.pipes[0].fd_pipe);
 	command.pid[0] = fork();
 
 	if (command.pid[0] == 0)
@@ -402,7 +463,7 @@ int	main(int argc, char *argv[], char *envp[])
 
 	while (i < command.num_cmds - 1)
 	{
-		pipe(command.fd_pipes + (i * 2));
+		pipe(command.pipes[i].fd_pipe);
 		command.pid[i] = fork();
 		if (command.pid[i] == 0)
 			exec_process(command, MID, i);
@@ -424,14 +485,14 @@ int	main(int argc, char *argv[], char *envp[])
 	while (i < (command.num_cmds - 1))
 	{
 		waitpid(command.pid[i], NULL, 0);
-		close_pipe(command.fd_pipes + (i * 2));
+		close_pipe(command.pipes[i].fd_pipe);
 		i++;
 	}
 
 	waitpid(command.pid[i], &return_code, 0);
 	free(command.path.home);
 	free(command.pid);
-	free(command.fd_pipes);
+	free(command.pipes);
 	ft_free_split(command.path.path);
 
 	return ((return_code >> 8) & 0xFF);
