@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   main.c                                             :+:      :+:    :+:   */
+/*   main_bonus.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 18:33:42 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/05 19:48:09 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 static void	init(t_command *command, int argc, char *argv[], char *envp[])
 {
 	command->i = 1;
-	command->fd_file_in = open(argv[1], O_RDONLY);
 	if (command->fd_file_in < 0)
 		perror("Invalid input file");
 	command->fd_file_out = open(argv[argc - 1],

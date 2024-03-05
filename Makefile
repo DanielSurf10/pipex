@@ -6,7 +6,7 @@
 #    By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/27 15:54:27 by danbarbo          #+#    #+#              #
-#    Updated: 2024/03/05 18:41:37 by danbarbo         ###   ########.fr        #
+#    Updated: 2024/03/05 19:19:40 by danbarbo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,7 @@ SRCS	:= ${shell find src -iname "*.c"}
 OBJS	:= ${SRCS:src/%.c=obj/%.o}
 
 SRCS_B	:= ${shell find src_bonus -iname "*.c"}
-OBJS_B	:= ${SRCS:src_bonus/%.c=obj/%.o}
+OBJS_B	:= ${SRCS_B:src_bonus/%.c=obj/%.o}
 
 all: ${NAME}
 bonus: ${NAME_B}
