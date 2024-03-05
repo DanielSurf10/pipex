@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:56:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 13:19:56 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/05 18:32:05 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,32 +146,6 @@ char	*expand_path(char *cmd, t_path path)
 	return (new_command);
 }
 
-// Primeiro comando:
-//	- fd_file_in				- usado
-//	- fd_file_out				- não usado
-//	- pipe de entrada - leitura	- não usado, não deve ser fechado (ele não existe)
-//	- pipe de saída   - escrita	- usado
-//		- fd[0] (leitura) não usado
-//		- fd[1] (escrita) usado
-//
-// Comandos do meio:
-//	- fd_file_in				- não usado
-//	- fd_file_out				- não usado
-//	- pipe de entrada - leitura - usado
-//		- fd[0] (leitura) usado
-//		- fd[1] (escrita) não usado
-//	- pipe de saída   - escrita	- usado
-//		- fd[0] (leitura) não usado
-//		- fd[1] (escrita) usado
-//
-// Último comando:
-//	- fd_file_in				- não usado
-//	- fd_file_out				- usado
-//	- pipe de entrada - leitura - usado
-//		- fd[0] (leitura) usado
-//		- fd[1] (escrita) não usado
-//	- pipe para saída - escrita	- não usado, não deve ser fechado (ele não existe)
-
 void	close_pipe(t_pipe pipe_to_close)
 {
 	close(pipe_to_close.fd_pipe[0]);
@@ -184,145 +158,7 @@ void	set_dup2(int fd_in, int fd_out)
 	dup2(fd_out, STDOUT_FILENO);
 }
 
-// int	exec_proc(t_command command, t_path path)
-// {
-// 	int		return_code;
-// 	char	*command_absolute;
-// 	char	**command_split;
-//
-// 	command_split = ft_split(command.command, ' ');
-	// printf("%s\n", command_split[0]);
-// 	command_absolute = get_command_from_path(command_split[0], path);
-//
-// 	// Se for o primeiro ele deve:
-// 	//	- Fazer o dup2 com command.fd_file_in e STDIN_FILENO
-// 	//	- Fazer o dup2 com command.fd_pipe_out[WRITE] e STDOUT_FILENO
-// 	//	- Fechar o fd do arquivo de entrada - command.fd_file_in
-// 	//	- Fechar o fd do arquivo de saída - command.fd_file_out
-// 	//	- Fechar a leitura do pipe de entrada - command.fd_pipe_in[READ]
-// 	//	- Fechar a escrita do pipe de saída - command.fd_pipe_out[WRITE]
-// 	if (command.type == FIRST)
-// 	{
-// 		dup2(command.fd_file_in, STDIN_FILENO);
-// 		dup2(command.fd_pipe_out[WRITE], STDOUT_FILENO);
-//
-// 		close(command.fd_file_in);
-// 		close(command.fd_file_out);
-// 		close_pipe(command.fd_pipe_out);
-// 	}
-//
-// 	// Se for algum comando do meio ele deve:
-// 	//	- Fazer o dup2 com command.fd_pipe_in[READ] e STDIN_FILENO
-// 	//	- Fazer o dup2 com command.fd_pipe_out[WRITE] e STDOUT_FILENO
-// 	//	- Fechar os fd's dos 2 arquivos, entrada e saída
-// 	//	- Fechar a leitura do pipe de entrada - command.fd_pipe_in[READ]
-// 	//	- Fechar a escrita do pipe de entrada - command.fd_pipe_in[WRITE]
-// 	//	- Fechar a leitura do pipe de saída - command.fd_pipe_out[READ]
-// 	//	- Fechar a escrita do pipe de saíða - command.fd_pipe_out[WRITE]
-// 	else if (command.type == MID)
-// 	{
-// 		dup2(command.fd_pipe_in[READ], STDIN_FILENO);
-// 		dup2(command.fd_pipe_out[WRITE], STDOUT_FILENO);
-//
-// 		close(command.fd_file_in);
-// 		close(command.fd_file_out);
-// 		close_pipe(command.fd_pipe_in);
-// 		close_pipe(command.fd_pipe_out);
-// 	}
-//
-// 	// Se for o último comando ele deve:
-// 	//	- Fazer o dup2 com command.fd_pipe_in[READ] e STDIN_FILENO
-// 	//	- Fazer o dup2 com command.fd_file_out e STDOUT_FILENO
-// 	//	- Fechar o fd do arquivo de entrada - command.fd_file_in
-// 	//	- Fechar o fd do arquivo de saída - command.fd_file_out
-// 	//	- Fechar a leitura do pipe de entrada - command.fd_pipe_in[READ]
-// 	//	- Fechar a escrita do pipe de entrada - command.fd_pipe_in[WRITE]
-// 	else
-// 	{
-// 		dup2(command.fd_pipe_in[READ], STDIN_FILENO);
-// 		dup2(command.fd_file_out, STDOUT_FILENO);
-//
-// 		close(command.fd_file_in);
-// 		close(command.fd_file_out);
-// 		close_pipe(command.fd_pipe_in);
-// 	}
-//
-// 	if (command_absolute && access(command_absolute, F_OK | X_OK) == 0)
-// 		execve(command_absolute, command_split, command.envp);
-//
-// 	// write(2, "Deu ruim 1\n", 11);
-// 	perror(command_absolute);
-//
-// 	if (!command_absolute || access(command_absolute, F_OK) != 0)
-// 		return_code = 127;
-// 	else if (access(command_absolute, X_OK) != 0)
-// 		return_code = 126;
-// 	else
-// 		return_code = 1;
-//
-// 	ft_free_split(command_split);
-// 	free(command_absolute);
-// 	free(path.home);
-// 	free(path.pwd);
-// 	ft_free_split(path.path);
-// 	return (return_code);
-// }
-//
-//	Abre os fd's dos arquivos
-//	Verifica se deu erro
-//
-//	faz um malloc de um array de int -> pid
-//	- Com o tamanho do número de comandos a serem executados
-//	- Esse array vai armazenar todos os pid's
-//
-//	abre o primeiro pipe e põe em pipe_out
-//	faz o primeiro fork e salva o pid no array -> pid[0]
-//	Dentro do child
-//		dá free no array de pid's -> free(pid)
-//		faz o dup2 do fd_file_in e STDIN
-//		faz o dup2 do pipe_out[1] e STDOUT
-//		fecha todos os fd, exceto STDIN e STDOUT
-//		executa o argv[2] -> primeiro comando
-//	i = 3
-//
-//	while (i < argc - 2)
-//		fecha os fd do pipe pipe_in
-//		pipe_out vai para pipe_in
-//		abre um pipe no pipe_out
-//		faz um fork e põe o pid no array de pi's -> pid[i - 3]
-//		Dentro do child:
-//			dá free no array de pid's -> free(pid)
-//			faz o dup2 do pipe_in[0] e STDIN
-//			faz o dup2 do pipe_out[1] e STDOUT
-//			fecha todos os fd, exceto STDIN e STDOUT
-//			executa o comando argv[i]
-//		i++
-//
-//	Se tiver mais do que 2 comandos:
-//		- foi preciso fazer mais do que 1 pipe
-//		- então precisa dar close no pipe_in
-//		fecha os fd do pipe pipe_in
-//	pipe_out vai para pipe_in
-//	faz o último fork e salva o pid no array -> pid[quantidade_de_comandos - 1]
-//	Dentro do child
-//		dá free no array de pid's -> free(pid)
-//		faz o dup2 do pipe_in[0] e STDIN
-//		faz o dup2 do fd_file_out e STDOUT
-//		fecha todos os fd, exceto STDIN e STDOUT
-//		executa o comando argv[argc - 2] -> último comando
-//
-//	fecha todos os fd's
-//		- fd's dos arquivos de entrada e saída
-//		- pipe_in
-//
-//	i = 0
-//	while (i < quantidade_de_comandos)
-//		waitpid(pid[i], &return_code, 0);
-//		i++
-//	return ((return_code >> 8) & 0xFF);
-//
-
-void	exec_process(t_command command, int type, int cmd_num)
+void	exec_process(t_command command, int type, int cmd_num, int relative_command)
 {
 	int		i;
 	int		return_code;
@@ -331,11 +167,10 @@ void	exec_process(t_command command, int type, int cmd_num)
 
 	i = 0;
 	return_code = 1;
-
 	if (type == MID || (type == FIRST && command.fd_file_in != -1)
 		|| (type == LAST && command.fd_file_out != -1))
 	{
-		args = ft_split(command.argv[cmd_num + 2], ' ');
+		args = ft_split(command.argv[relative_command], ' ');
 		cmd = expand_path(args[0], command.path);
 
 		if (type == FIRST)
@@ -399,24 +234,95 @@ void	exec_process(t_command command, int type, int cmd_num)
 	exit(return_code);
 }
 
+char	*read_line(int fd)
+{
+	int		chars_readed;
+	int		already_read;
+	char	*temp_buffer;
+	char	*file_string;
+	char	*aux;
+
+	already_read = 0;
+	chars_readed = BUFFER_SIZE;
+	temp_buffer = (char *) malloc((BUFFER_SIZE + 1));
+	file_string = ft_strdup("");
+	while (ft_strchr(file_string, '\n') == NULL)
+	{
+		chars_readed = read(fd, temp_buffer, BUFFER_SIZE);
+		temp_buffer[chars_readed] = '\0';
+		if ((chars_readed == 0 && already_read == 0))
+			break ;
+		if (chars_readed != 0)
+			already_read = 1;
+		aux = file_string;
+		file_string = ft_strjoin(file_string, temp_buffer);
+		free(aux);
+	}
+	free(temp_buffer);
+	return (file_string);
+}
+
+int	get_from_here_doc(char *delimiter)
+{
+	int		readed;
+	int		delimiter_size;
+	int		pipe_fd[2];
+	char	*line;
+
+	delimiter_size = ft_strlen(delimiter);
+	readed = 1;
+	line = NULL;
+	pipe(pipe_fd);
+	while (1)
+	{
+		ft_putstr_fd("heredoc> ", STDOUT_FILENO);
+		line = read_line(STDIN_FILENO);
+		readed = ft_strlen(line);
+		if (readed == 0)
+		{
+			ft_putstr_fd("\nWarning: here-document delimited by end-of-file (wanted '", STDERR_FILENO);
+			ft_putstr_fd(delimiter, STDERR_FILENO);
+			ft_putstr_fd("')\n", STDERR_FILENO);
+			free(line);
+			break ;
+		}
+		if ((readed - 1) == delimiter_size && ft_strncmp(line, delimiter, delimiter_size) == 0)
+		{
+			free(line);
+			break ;
+		}
+		ft_putstr_fd(line, pipe_fd[1]);
+		free(line);
+	}
+	close(pipe_fd[1]);
+	return (pipe_fd[0]);
+}
+
 int	main(int argc, char *argv[], char *envp[])
 {
-	t_command	command;
 	int			i;
+	int			relative_command;
 	int			return_code;
+	t_command	command;
 
 	if (argc < 5 || (ft_strncmp(argv[1], "here_doc", -1) == 0 && argc < 6))
 	{
 		write(2, "Usage error.\n", 14);
 		write(2, "Expected: ./pipex <file_in> <cmd1> <cmd2> ... <cmdn> <file_out>\n", 65);
-		write(2, "Expected: ./pipex here_doc <file_in> <cmd1> <cmd2> ... <cmdn> <file_out>\n", 65);
+		write(2, "Expected: ./pipex here_doc <delimiter> <cmd1> <cmd2> ... <cmdn> <file_out>\n", 76);
 		return (1);
 	}
 
 	if (ft_strncmp(argv[1], "here_doc", -1) == 0)
-		command.fd_file_in = get_from_here_doc();
+	{
+		relative_command = 3;
+		command.fd_file_in = get_from_here_doc(argv[2]);
+	}
 	else
+	{
+		relative_command = 2;
 		command.fd_file_in = open(argv[1], O_RDONLY);
+	}
 
 	if (command.fd_file_in < 0)
 		perror("Invalid input file");
@@ -439,21 +345,24 @@ int	main(int argc, char *argv[], char *envp[])
 	command.pid[0] = fork();
 
 	if (command.pid[0] == 0)
-		exec_process(command, FIRST, 0);
+		exec_process(command, FIRST, 0, relative_command);
+
+	relative_command++;
 
 	while (i < command.num_cmds - 1)
 	{
 		pipe(command.pipes[i].fd_pipe);
 		command.pid[i] = fork();
 		if (command.pid[i] == 0)
-			exec_process(command, MID, i);
+			exec_process(command, MID, i, relative_command);
+		relative_command++;
 		i++;
 	}
 
 	command.pid[command.num_cmds - 1] = fork();
 
 	if (command.pid[command.num_cmds - 1] == 0)
-		exec_process(command, LAST, command.num_cmds - 1);
+		exec_process(command, LAST, command.num_cmds - 1, argc - 2);
 
 	if (command.fd_file_in != -1)
 		close(command.fd_file_in);

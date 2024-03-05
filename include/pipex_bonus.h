@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   pipex.h                                            :+:      :+:    :+:   */
+/*   pipex_bonus.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 20:44:08 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 18:29:58 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/05 18:34:48 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PIPEX_H
-# define PIPEX_H
+#ifndef PIPEX_BONUS_H
+# define PIPEX_BONUS_H
 
 # include <stdio.h>
 # include <stdlib.h>
@@ -65,14 +65,17 @@ typedef struct s_command
 
 // Functions
 
-// main
-void	exec_process(t_command command, int type, int cmd_num);
+// Process
+void	exec_process(t_command command, int type, int cmd_num, int relative);
 
-// path
+// Path
 t_path	get_path_variables(char **envp);
 char	*expand_path(char *cmd, t_path path);
 
-// utils
+// Here_doc
+int		get_from_here_doc(char *delimiter);
+
+// Utils
 void	close_pipe(t_pipe pipe_to_close);
 void	set_dup2(int fd_in, int fd_out);
 void	free_all(t_command command);

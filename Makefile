@@ -6,13 +6,14 @@
 #    By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/27 15:54:27 by danbarbo          #+#    #+#              #
-#    Updated: 2024/02/26 18:00:54 by danbarbo         ###   ########.fr        #
+#    Updated: 2024/03/05 18:41:37 by danbarbo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	:= pipex
-# CFLAGS	:= -Wextra -Wall -Werror -g3
-CFLAGS	:= -g3
+NAME_B	:= pipex_bonus
+CFLAGS	:= -Wextra -Wall -Werror -g3
+# CFLAGS	:= -g3
 LIBFT	:= ./lib/libft
 
 HEADERS	:= -I ./include \
@@ -20,27 +21,41 @@ HEADERS	:= -I ./include \
 
 LIBS	:= ${LIBFT}/libft.a
 
-SRCS	:= $(shell find src -iname "*.c")
+SRCS	:= ${shell find src -iname "*.c"}
 OBJS	:= ${SRCS:src/%.c=obj/%.o}
 
-all: $(NAME)
-$(NAME): libft $(OBJS)
-	@$(CC) $(OBJS) $(LIBS) $(HEADERS) -o $(NAME)
+SRCS_B	:= ${shell find src_bonus -iname "*.c"}
+OBJS_B	:= ${SRCS:src_bonus/%.c=obj/%.o}
+
+all: ${NAME}
+bonus: ${NAME_B}
+
+${NAME}: libft ${OBJS}
+	@${CC} ${OBJS} ${LIBS} ${HEADERS} -o ${NAME}
+
+${NAME_B}: libft ${OBJS_B}
+	@${CC} ${OBJS_B} ${LIBS} ${HEADERS} -o ${NAME_B}
 
 obj/%.o: src/%.c
 	@mkdir -p ${dir $@}
-	@$(CC) $(CFLAGS) -o $@ -c $< $(HEADERS)
-	@printf "Compiling: $(notdir $<)\n"
+	@${CC} ${CFLAGS} -o $@ -c $< ${HEADERS}
+	@printf "Compiling: ${notdir $<}\n"
+
+obj/%.o: src_bonus/%.c
+	@mkdir -p ${dir $@}
+	@${CC} ${CFLAGS} -o $@ -c $< ${HEADERS}
+	@printf "Compiling: ${notdir $<}\n"
 
 libft:
 	@make -C ${LIBFT} all
 
 clean:
-	@rm -rf $(OBJS)
+	@rm -rf obj
 #	@make -C ${LIBFT} clean		# Tirar isso dps
 
 fclean: clean
-	@rm -rf $(NAME)
+	@rm -f ${NAME}
+	@rm -f ${NAME_B}
 #	@make -C ${LIBFT} clean		# Tirar isso dps
 
 re: fclean all
