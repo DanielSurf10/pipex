@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   any_commands_and_heredoc.c                         :+:      :+:    :+:   */
+/*   any_commands_and_here_doc.c                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:56:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 13:12:24 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/05 13:19:56 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -405,13 +405,18 @@ int	main(int argc, char *argv[], char *envp[])
 	int			i;
 	int			return_code;
 
-	if (argc < 5)
+	if (argc < 5 || (ft_strncmp(argv[1], "here_doc", -1) == 0 && argc < 6))
 	{
-		write(2, "Usage error.\nExpected: ./pipex <file_in> <cmd1> <cmd2> ... <cmdn> <file_out>\n", 78);
+		write(2, "Usage error.\n", 14);
+		write(2, "Expected: ./pipex <file_in> <cmd1> <cmd2> ... <cmdn> <file_out>\n", 65);
+		write(2, "Expected: ./pipex here_doc <file_in> <cmd1> <cmd2> ... <cmdn> <file_out>\n", 65);
 		return (1);
 	}
 
-	command.fd_file_in = open(argv[1], O_RDONLY);
+	if (ft_strncmp(argv[1], "here_doc", -1) == 0)
+		command.fd_file_in = get_from_here_doc();
+	else
+		command.fd_file_in = open(argv[1], O_RDONLY);
 
 	if (command.fd_file_in < 0)
 		perror("Invalid input file");
