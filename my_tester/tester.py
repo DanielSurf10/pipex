@@ -13,7 +13,7 @@ for i in a:
 
 # print(*commands, sep='\n')
 
-# os.system("cp ../pipex .")
+os.system("cp ../pipex .")
 val = "valgrind -q --trace-children=yes --track-fds=yes --track-origins=yes --leak-check=full --show-leak-kinds=all --trace-children-skip='*/bin/*,*/sbin/*' "
 
 for command in commands:

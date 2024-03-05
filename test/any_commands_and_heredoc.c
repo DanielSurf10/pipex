@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   any_commands.c                                     :+:      :+:    :+:   */
+/*   any_commands_and_heredoc.c                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:56:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 12:34:59 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/05 13:12:24 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,32 +60,6 @@ typedef struct s_command
 	char	**envp;
 	t_path	path;
 }	t_command;
-
-// enum e_process
-// {
-// 	FIRST = 0,
-// 	MID,
-// 	LAST
-// };
-//
-// typedef struct s_path
-// {
-// 	char	*home;
-// 	// char	*pwd;
-// 	char	**path;
-// }	t_path;
-//
-// typedef struct s_command
-// {
-// 	int		fd_file_in;
-// 	int		fd_file_out;
-// 	int		num_cmds;
-// 	int		*fd_pipes;
-// 	int		*pid;
-// 	char	**argv;
-// 	char	**envp;
-// 	t_path	path;
-// }	t_command;
 
 char	**split_path(char *str)
 {

@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 20:44:08 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 10:14:58 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/05 12:36:47 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,14 +46,19 @@ typedef struct s_path
 	char	**path;
 }	t_path;
 
+typedef struct s_pipe
+{
+	int	fd_pipe[2];
+}	t_pipe;
+
 typedef struct s_command
 {
 	int		i;
 	int		fd_file_in;
 	int		fd_file_out;
 	int		num_cmds;
-	int		*fd_pipes;
 	int		*pid;
+	t_pipe	*pipes;
 	char	**argv;
 	char	**envp;
 	t_path	path;
@@ -69,7 +74,7 @@ t_path	get_path_variables(char **envp);
 char	*expand_path(char *cmd, t_path path);
 
 // utils
-void	close_pipe(int *fd_pipe);
+void	close_pipe(t_pipe pipe_to_close);
 void	set_dup2(int fd_in, int fd_out);
 void	free_all(t_command command);
 
