@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 16:06:23 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/04 20:44:57 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/05 00:36:59 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,13 +17,12 @@ static void	close_pipes(t_command command, int cmd_num)
 	int	i;
 
 	i = 0;
-	close(command.fd_file_in);
-	close(command.fd_file_out);
-	while (i < cmd_num * 2)
-	{
-		close_pipe(command.fd_pipes + i);
-		i += 2;
-	}
+	if (command.fd_file_in != -1)
+		close(command.fd_file_in);
+	if (command.fd_file_out != -1)
+		close(command.fd_file_out);
+	while (i < cmd_num * 2 || (cmd_num == 0 && i == 0))
+		close_pipe(command.fd_pipes + (i += 2));
 }
 
 static void	change_input_and_output(t_command command, int type, int cmd_num)
@@ -66,7 +65,6 @@ void	exec_process(t_command command, int type, int cmd_num)
 		args = ft_split(command.argv[cmd_num + 2], ' ');
 		cmd = expand_path(args[0], command.path);
 		change_input_and_output(command, type, cmd_num);
-		close_pipes(command, cmd_num);
 		if (cmd && access(cmd, F_OK | X_OK) == 0)
 			execve(cmd, args, command.envp);
 		ft_putstr_fd(args[0], 2);
@@ -74,6 +72,7 @@ void	exec_process(t_command command, int type, int cmd_num)
 		free(cmd);
 		ft_free_split(args);
 	}
+	close_pipes(command, cmd_num);
 	free_all(command);
 	exit(return_code);
 }

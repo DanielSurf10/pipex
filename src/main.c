@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/04 20:52:23 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/05 00:34:06 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,16 +30,39 @@ static void	init(t_command *command, int argc, char *argv[], char *envp[])
 	command->fd_pipes = malloc(sizeof(int) * (command->num_cmds - 1) * 2);
 }
 
-void	exec_first_process(t_command *command)
+// void	exec_first_process(t_command *command)
+// {
+// 	pipe(command->fd_pipes);
+// 	command->pid[0] = fork();
+// 	if (command->pid[0] == 0)
+// 		exec_process(*command, FIRST, 0);
+// }
+//
+// void	exec_mid_commands(t_command *command)
+// {
+// 	while (command->i < command->num_cmds - 1)
+// 	{
+// 		pipe(command->fd_pipes + (command->i * 2));
+// 		command->pid[command->i] = fork();
+// 		if (command->pid[command->i] == 0)
+// 			exec_process(*command, MID, command->i);
+// 		command->i++;
+// 	}
+// }
+//
+// void	exec_last_command(t_command *command)
+// {
+// 	command->pid[command->num_cmds - 1] = fork();
+// 	if (command->pid[command->num_cmds - 1] == 0)
+// 		exec_process(*command, LAST, command->num_cmds - 1);
+// }
+
+void	exec_commands(t_command *command)
 {
 	pipe(command->fd_pipes);
 	command->pid[0] = fork();
 	if (command->pid[0] == 0)
 		exec_process(*command, FIRST, 0);
-}
-
-void	exec_mid_commands(t_command *command)
-{
 	while (command->i < command->num_cmds - 1)
 	{
 		pipe(command->fd_pipes + (command->i * 2));
@@ -48,10 +71,6 @@ void	exec_mid_commands(t_command *command)
 			exec_process(*command, MID, command->i);
 		command->i++;
 	}
-}
-
-void	exec_last_command(t_command *command)
-{
 	command->pid[command->num_cmds - 1] = fork();
 	if (command->pid[command->num_cmds - 1] == 0)
 		exec_process(*command, LAST, command->num_cmds - 1);
@@ -69,16 +88,20 @@ int	main(int argc, char *argv[], char *envp[])
 		return (1);
 	}
 	init(&command, argc, argv, envp);
-	exec_first_process(&command);
-	exec_mid_commands(&command);
-	exec_last_command(&command);
-	close(command.fd_file_in);
-	close(command.fd_file_out);
+	// exec_first_process(&command);
+	// exec_mid_commands(&command);
+	// exec_last_command(&command);
+	exec_commands(&command);
+	if (command.fd_file_in != -1)
+		close(command.fd_file_in);
+	if (command.fd_file_out != -1)
+		close(command.fd_file_out);
 	command.i = 0;
 	while (command.i < (command.num_cmds - 1))
 	{
 		waitpid(command.pid[command.i], NULL, 0);
-		close_pipe(command.fd_pipes + ((command.i++) * 2));
+		close_pipe(command.fd_pipes + (command.i * 2));
+		command.i++;
 	}
 	waitpid(command.pid[command.i], &return_code, 0);
 	free_all(command);

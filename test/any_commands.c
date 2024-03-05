@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:56:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/04 19:24:58 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/05 00:36:14 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,14 @@
 // 	MID,
 // 	LAST
 // };
-
+//
 // typedef struct s_path
 // {
 // 	char	*home;
 // 	// char	*pwd;
 // 	char	**path;
 // }	t_path;
-
+//
 // typedef struct s_command
 // {
 // 	int		fd_file_in;
@@ -168,7 +168,7 @@ void	set_dup2(int fd_in, int fd_out)
 // 	char	**command_split;
 //
 // 	command_split = ft_split(command.command, ' ');
-// 	// printf("%s\n", command_split[0]);
+	// printf("%s\n", command_split[0]);
 // 	command_absolute = get_command_from_path(command_split[0], path);
 //
 // 	// Se for o primeiro ele deve:
@@ -244,7 +244,7 @@ void	set_dup2(int fd_in, int fd_out)
 // 	ft_free_split(path.path);
 // 	return (return_code);
 // }
-
+//
 //	Abre os fd's dos arquivos
 //	Verifica se deu erro
 //
@@ -308,11 +308,13 @@ void	exec_process(t_command command, int type, int cmd_num)
 
 	i = 0;
 	return_code = 1;
+
 	if (type == MID || (type == FIRST && command.fd_file_in != -1)
 		|| (type == LAST && command.fd_file_out != -1))
 	{
 		args = ft_split(command.argv[cmd_num + 2], ' ');
 		cmd = expand_path(args[0], command.path);
+
 		if (type == FIRST)
 			set_dup2(command.fd_file_in, command.fd_pipes[(cmd_num * 2) + 1]);
 		else if (type == MID)
@@ -320,22 +322,40 @@ void	exec_process(t_command command, int type, int cmd_num)
 				command.fd_pipes[(cmd_num * 2) + 1]);
 		else if (type == LAST)
 			set_dup2(command.fd_pipes[(cmd_num - 1) * 2], command.fd_file_out);
-		close(command.fd_file_in);
-		close(command.fd_file_out);
-		while (i < cmd_num * 2)
-		{
-			close_pipe(command.fd_pipes + i);
-			i += 2;
-		}
+
 		if (cmd && access(cmd, F_OK | X_OK) == 0)
 			execve(cmd, args, command.envp);
+
+		ft_putstr_fd(args[0], 2);
+		if (!cmd || access(cmd, F_OK) != 0)
+		{
+			ft_putendl_fd(": Command not found", 2);
+			return_code = 127;
+		}
+		else if (access(cmd, X_OK) != 0)
+		{
+			ft_putendl_fd(": Permission denied", 2);
+			return_code = 126;
+		}
+
 		if (!cmd || access(cmd, F_OK) != 0)
 			return_code = 127;
+
 		else if (access(cmd, X_OK) != 0)
 			return_code = 126;
+
 		free(cmd);
 		ft_free_split(args);
 	}
+
+	while (i < cmd_num * 2 || (cmd_num == 0 && i == 0))
+		close_pipe(command.fd_pipes + (i += 2));
+
+	if (command.fd_file_in != -1)
+		close(command.fd_file_in);
+	if (command.fd_file_out != -1)
+		close(command.fd_file_out);
+
 	free(command.pid);
 	free(command.fd_pipes);
 	free(command.path.home);
@@ -394,15 +414,18 @@ int	main(int argc, char *argv[], char *envp[])
 	if (command.pid[command.num_cmds - 1] == 0)
 		exec_process(command, LAST, command.num_cmds - 1);
 
-	close(command.fd_file_in);
-	close(command.fd_file_out);
+	if (command.fd_file_in != -1)
+		close(command.fd_file_in);
+	if (command.fd_file_out != -1)
+		close(command.fd_file_out);
 
 	i = 0;
 
 	while (i < (command.num_cmds - 1))
 	{
 		waitpid(command.pid[i], NULL, 0);
-		close_pipe(command.fd_pipes + ((i++) * 2));
+		close_pipe(command.fd_pipes + (i * 2));
+		i++;
 	}
 
 	waitpid(command.pid[i], &return_code, 0);
