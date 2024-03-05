@@ -3,7 +3,8 @@
 		"wait.h": "c",
 		"cerrno": "c",
 		"pipex.h": "c",
-		"stdlib.h": "c"
+		"stdlib.h": "c",
+		"pipex_bonus.h": "c"
 	},
 	"C_Cpp.default.compilerPath": "/usr/bin/gcc"
 }

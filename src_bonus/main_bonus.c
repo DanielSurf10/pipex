@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 19:48:09 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/05 19:53:44 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,29 +48,36 @@ void	exec_commands(t_command *command, int relative_command)
 		exec_process(*command, LAST, command->num_cmds - 1, relative_command);
 }
 
+void	pre_init(t_command *command, int argc, char *argv[], int *relative)
+{
+	if (argc < 5 || (ft_strncmp(argv[1], "here_doc", -1) == 0 && argc < 6))
+	{
+		write(2, "Usage error.\n", 14);
+		write(2, "Expected: ./pipex <file_in> <cmd1> <cmd2> ... <cmdn> \
+<file_out>\n", 65);
+		write(2, "Expected: ./pipex here_doc <delimiter> <cmd1> <cmd2> ... \
+<cmdn> <file_out>\n", 76);
+		exit (1);
+	}
+	if (ft_strncmp(argv[1], "here_doc", -1) == 0)
+	{
+		*relative = 3;
+		command->fd_file_in = get_from_here_doc(argv[2]);
+	}
+	else
+	{
+		*relative = 2;
+		command->fd_file_in = open(argv[1], O_RDONLY);
+	}
+}
+
 int	main(int argc, char *argv[], char *envp[])
 {
 	int			return_code;
 	int			relative_command;
 	t_command	command;
 
-	if (argc < 5 || (ft_strncmp(argv[1], "here_doc", -1) == 0 && argc < 6))
-	{
-		write(2, "Usage error.\n", 14);
-		write(2, "Expected: ./pipex <file_in> <cmd1> <cmd2> ... <cmdn> <file_out>\n", 65);
-		write(2, "Expected: ./pipex here_doc <delimiter> <cmd1> <cmd2> ... <cmdn> <file_out>\n", 76);
-		return (1);
-	}
-	if (ft_strncmp(argv[1], "here_doc", -1) == 0)
-	{
-		relative_command = 3;
-		command.fd_file_in = get_from_here_doc(argv[2]);
-	}
-	else
-	{
-		relative_command = 2;
-		command.fd_file_in = open(argv[1], O_RDONLY);
-	}
+	pre_init(&command, argc, argv, &relative_command);
 	init(&command, argc, argv, envp);
 	exec_commands(&command, relative_command);
 	if (command.fd_file_in != -1)

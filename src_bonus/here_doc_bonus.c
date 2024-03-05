@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/05 18:28:35 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 19:46:48 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/05 20:01:03 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,14 @@ static char	*read_line(int fd)
 	return (file_string);
 }
 
+void	print_error_message(char *delimiter)
+{
+	ft_putstr_fd("\nWarning: here-document delimited by end-of-file (wanted '",
+		STDERR_FILENO);
+	ft_putstr_fd(delimiter, STDERR_FILENO);
+	ft_putstr_fd("')\n", STDERR_FILENO);
+}
+
 int	get_from_here_doc(char *delimiter)
 {
 	int		readed;
@@ -48,24 +56,17 @@ int	get_from_here_doc(char *delimiter)
 	char	*line;
 
 	delimiter_size = ft_strlen(delimiter);
-	readed = 1;
-	line = NULL;
 	pipe(pipe_fd);
 	while (1)
 	{
 		ft_putstr_fd("heredoc> ", STDOUT_FILENO);
 		line = read_line(STDIN_FILENO);
 		readed = ft_strlen(line);
-		if (readed == 0)
+		if (readed == 0 || ((readed - 1) == delimiter_size
+				&& ft_strncmp(line, delimiter, delimiter_size) == 0))
 		{
-			ft_putstr_fd("\nWarning: here-document delimited by end-of-file (wanted '", STDERR_FILENO);
-			ft_putstr_fd(delimiter, STDERR_FILENO);
-			ft_putstr_fd("')\n", STDERR_FILENO);
-			free(line);
-			break ;
-		}
-		if ((readed - 1) == delimiter_size && ft_strncmp(line, delimiter, delimiter_size) == 0)
-		{
+			if (readed == 0)
+				print_error_message(delimiter);
 			free(line);
 			break ;
 		}
