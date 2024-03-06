@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 19:53:44 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/05 23:36:36 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@ static void	init(t_command *command, int argc, char *argv[], char *envp[])
 	command->i = 1;
 	if (command->fd_file_in < 0)
 		perror("Invalid input file");
-	command->fd_file_out = open(argv[argc - 1],
-			O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (command->fd_file_out < 0)
 		perror("Invalid output file");
 	command->path = get_path_variables(envp);
@@ -35,12 +33,14 @@ void	exec_commands(t_command *command, int relative_command)
 	command->pid[0] = fork();
 	if (command->pid[0] == 0)
 		exec_process(*command, FIRST, 0, relative_command);
+	relative_command++;
 	while (command->i < command->num_cmds - 1)
 	{
 		pipe(command->pipes[command->i].fd_pipe);
 		command->pid[command->i] = fork();
 		if (command->pid[command->i] == 0)
 			exec_process(*command, MID, command->i, relative_command);
+		relative_command++;
 		command->i++;
 	}
 	command->pid[command->num_cmds - 1] = fork();
@@ -63,11 +63,15 @@ void	pre_init(t_command *command, int argc, char *argv[], int *relative)
 	{
 		*relative = 3;
 		command->fd_file_in = get_from_here_doc(argv[2]);
+		command->fd_file_out = open(argv[argc - 1],
+			O_WRONLY | O_CREAT | O_APPEND, 0644);
 	}
 	else
 	{
 		*relative = 2;
 		command->fd_file_in = open(argv[1], O_RDONLY);
+		command->fd_file_out = open(argv[argc - 1],
+			O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	}
 }
 

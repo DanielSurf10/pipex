@@ -6,14 +6,13 @@
 #    By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/27 15:54:27 by danbarbo          #+#    #+#              #
-#    Updated: 2024/03/05 19:19:40 by danbarbo         ###   ########.fr        #
+#    Updated: 2024/03/05 23:09:20 by danbarbo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME	:= pipex
 NAME_B	:= pipex_bonus
 CFLAGS	:= -Wextra -Wall -Werror -g3
-# CFLAGS	:= -g3
 LIBFT	:= ./lib/libft
 
 HEADERS	:= -I ./include \

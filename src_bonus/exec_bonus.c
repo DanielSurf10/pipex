@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 16:06:23 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 19:47:40 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/05 23:32:30 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,12 +55,10 @@ void	error_message(char *cmd, int *return_code)
 
 void	exec_process(t_command command, int type, int cmd_num, int relative)
 {
-	int		i;
 	int		return_code;
 	char	*cmd;
 	char	**args;
 
-	i = 0;
 	return_code = 1;
 	if (type == MID || (type == FIRST && command.fd_file_in != -1)
 		|| (type == LAST && command.fd_file_out != -1))
