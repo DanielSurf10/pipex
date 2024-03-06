@@ -1,9 +1,0 @@
-#!/bin/bash
-
-if [ -z "$1" ]
-then
-  echo "Forneça um parâmetro."
-  exit 1
-fi
-
-cc -I include -I lib/libft/include $@ lib/libft/libft.a -g3

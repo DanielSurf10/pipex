@@ -1,9 +1,0 @@
-#!/bin/bash
-
-if [ -z "$1" ]
-then
-  echo "Forneça um parâmetro."
-  exit 1
-fi
-
-valgrind -q --trace-children=yes --track-fds=yes --track-origins=yes --leak-check=full --show-leak-kinds=all --trace-children-skip='*/bin/*,*/sbin/*,/usr/bin/*' $@

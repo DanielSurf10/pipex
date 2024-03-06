@@ -6,7 +6,7 @@
 #    By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/27 15:54:27 by danbarbo          #+#    #+#              #
-#    Updated: 2024/03/06 11:53:06 by danbarbo         ###   ########.fr        #
+#    Updated: 2024/03/06 13:37:55 by danbarbo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -57,7 +57,7 @@ clean:
 fclean: clean
 	@rm -f ${NAME}
 	@rm -f ${NAME_B}
-	@make -C ${LIBFT} clean
+	@make -C ${LIBFT} fclean
 
 re: fclean all
 re_bonus: fclean bonus
