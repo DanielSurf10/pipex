@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/06 00:34:48 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/06 13:01:18 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ static void	pre_init(t_command *command, int argc, char *argv[], int *relative)
 		*relative = 3;
 		command->fd_file_in = get_from_here_doc(argv[2]);
 		command->fd_file_out = open(argv[argc - 1],
-			O_WRONLY | O_CREAT | O_APPEND, 0644);
+				O_WRONLY | O_CREAT | O_APPEND, 0644);
 		command->num_cmds = argc - 4;
 	}
 	else
@@ -71,7 +71,7 @@ static void	pre_init(t_command *command, int argc, char *argv[], int *relative)
 		*relative = 2;
 		command->fd_file_in = open(argv[1], O_RDONLY);
 		command->fd_file_out = open(argv[argc - 1],
-			O_WRONLY | O_CREAT | O_TRUNC, 0644);
+				O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		command->num_cmds = argc - 3;
 	}
 }

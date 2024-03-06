@@ -6,13 +6,13 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 16:16:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/04 20:14:56 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/06 11:44:09 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex.h"
 
-char	**split_path(char *str)
+static char	**split_path(char *str)
 {
 	char	*start;
 	char	**split;
@@ -22,7 +22,7 @@ char	**split_path(char *str)
 	return (split);
 }
 
-char	*join_paths(char *absolute, char *relative)
+static char	*join_paths(char *absolute, char *relative)
 {
 	char	total_size;
 	int		absolute_size;
@@ -60,7 +60,7 @@ t_path	get_path_variables(char **envp)
 	return (path);
 }
 
-char	*expand_from_path(char *cmd, t_path path)
+static char	*expand_from_path(char *cmd, t_path path)
 {
 	int		i;
 	char	*new_command;

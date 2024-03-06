@@ -6,7 +6,7 @@
 #    By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/27 15:54:27 by danbarbo          #+#    #+#              #
-#    Updated: 2024/03/06 00:47:35 by danbarbo         ###   ########.fr        #
+#    Updated: 2024/03/06 11:53:06 by danbarbo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,10 +20,12 @@ HEADERS	:= -I ./include \
 
 LIBS	:= ${LIBFT}/libft.a
 
-SRCS	:= ${shell find src -iname "*.c"}
+SRCS	:= src/exec.c src/main.c src/path.c src/utils.c
 OBJS	:= ${SRCS:src/%.c=obj/%.o}
 
-SRCS_B	:= ${shell find src_bonus -iname "*.c"}
+SRCS_B	:= src_bonus/exec_bonus.c src_bonus/here_doc_bonus.c \
+			src_bonus/main_bonus.c src_bonus/path_bonus.c \
+			src_bonus/utils_bonus.c
 OBJS_B	:= ${SRCS_B:src_bonus/%.c=obj/%.o}
 
 all: ${NAME}
@@ -58,5 +60,6 @@ fclean: clean
 	@make -C ${LIBFT} clean
 
 re: fclean all
+re_bonus: fclean bonus
 
-.PHONY: all clean fclean re libft test
+.PHONY: all clean fclean re re_bonus libft

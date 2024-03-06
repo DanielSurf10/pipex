@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 16:06:23 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/06 00:35:15 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/06 12:52:22 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,8 +23,11 @@ static void	close_pipes(t_command command, int cmd_num)
 	i = 0;
 	if (cmd_num == 0)
 		close_pipe(command.pipes[0]);
-	else
+	else if (command.num_cmds - 1 == cmd_num)
 		while (i < cmd_num)
+			close_pipe(command.pipes[i++]);
+	else
+		while (i <= cmd_num)
 			close_pipe(command.pipes[i++]);
 }
 

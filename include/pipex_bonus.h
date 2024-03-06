@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 20:44:08 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 18:34:48 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/06 11:46:36 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,6 @@
 # include <unistd.h>
 # include <fcntl.h>
 # include <sys/wait.h>
-# include <errno.h>
 
 # include "libft.h"
 

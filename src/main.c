@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 18:32:37 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/06 11:43:38 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static void	init(t_command *command, int argc, char *argv[], char *envp[])
 	command->pipes = malloc(sizeof(t_pipe) * (command->num_cmds - 1));
 }
 
-void	exec_commands(t_command *command)
+static void	exec_commands(t_command *command)
 {
 	pipe(command->pipes[0].fd_pipe);
 	command->pid[0] = fork();

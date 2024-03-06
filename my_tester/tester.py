@@ -20,4 +20,4 @@ for command in commands:
 	print(command.replace("./pipex", "../pipex"))
 	return_code = os.system(val + command.replace("./pipex", "../pipex"))
 	print((return_code >> 8) & 0xFF)
-	input()
+	# input()
