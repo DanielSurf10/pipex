@@ -10,19 +10,29 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "pipex.h"
+# include <stdio.h>
+# include <stdlib.h>
+# include <string.h>		// Pode usar se for usar strerror
+# include <unistd.h>
+# include <fcntl.h>
+# include <sys/wait.h>
+# include <errno.h>
+
+# include "libft.h"
+
+// enums
+
+enum e_fd
+{
+	READ = 0,
+	WRITE
+};
 
 enum e_process
 {
 	FIRST = 0,
 	MID,
 	LAST
-};
-
-enum e_fd
-{
-	READ = 0,
-	WRITE
 };
 
 typedef struct s_command

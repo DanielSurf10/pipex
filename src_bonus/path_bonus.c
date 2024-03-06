@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 16:16:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/06 00:34:36 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/06 19:14:04 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,10 +29,6 @@ static char	*join_paths(char *absolute, char *relative)
 	char	*str;
 
 	absolute_size = ft_strlen(absolute);
-	if (absolute[absolute_size - 1] == '/')
-		absolute_size--;
-	if (relative[0] == '/')
-		relative++;
 	total_size = absolute_size + ft_strlen(relative) + 2;
 	str = malloc(total_size);
 	ft_strlcpy(str, absolute, total_size);

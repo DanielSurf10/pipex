@@ -52,12 +52,15 @@
 ./pipex infile ./not_script cat outfile
 ./pipex infile cat ./not_script outfile
 ./pipex infile ./not_script ./not_script outfile
+./pipex "" "" "" ""
+./pipex infile "" "" outfile
+./pipex "" cat cat ""
 
 # Valid commands from path
 ./pipex infile cat cat outfile
 ./pipex infile cat hostname outfile
 ./pipex infile "grep d" "cat -e" outfile
-./pipex /dev/urandom "head -n 10" "wc -l" outfile
+./pipex /dev/urandom cat "head -n 10" outfile
 ./pipex infile "cat" "tr [a-z] [A-Z]" outfile
 ./pipex infile "sed s/And/But/" "grep But" outfile
 ./pipex infile "sleep 5" ls outfile

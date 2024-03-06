@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 20:44:08 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/06 11:46:36 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/06 18:58:38 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ typedef struct s_command
 
 // Process
 void	exec_process(t_command command, int type, int cmd_num, int relative);
+void	close_pipes(t_command command, int cmd_num);
 
 // Path
 t_path	get_path_variables(char **envp);

@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/06 11:43:38 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/06 19:01:41 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 static void	init(t_command *command, int argc, char *argv[], char *envp[])
 {
-	command->i = 1;
 	command->fd_file_in = open(argv[1], O_RDONLY);
 	if (command->fd_file_in < 0)
 		perror("Invalid input file");
@@ -36,14 +35,6 @@ static void	exec_commands(t_command *command)
 	command->pid[0] = fork();
 	if (command->pid[0] == 0)
 		exec_process(*command, FIRST, 0);
-	while (command->i < command->num_cmds - 1)
-	{
-		pipe(command->pipes[command->i].fd_pipe);
-		command->pid[command->i] = fork();
-		if (command->pid[command->i] == 0)
-			exec_process(*command, MID, command->i);
-		command->i++;
-	}
 	command->pid[command->num_cmds - 1] = fork();
 	if (command->pid[command->num_cmds - 1] == 0)
 		exec_process(*command, LAST, command->num_cmds - 1);
@@ -66,14 +57,9 @@ int	main(int argc, char *argv[], char *envp[])
 		close(command.fd_file_in);
 	if (command.fd_file_out != -1)
 		close(command.fd_file_out);
-	command.i = 0;
-	while (command.i < command.num_cmds - 1)
-	{
-		waitpid(command.pid[command.i], NULL, 0);
-		close_pipe(command.pipes[command.i]);
-		command.i++;
-	}
-	waitpid(command.pid[command.i], &return_code, 0);
+	close_pipe(command.pipes[0]);
+	waitpid(command.pid[0], &return_code, 0);
+	waitpid(command.pid[1], &return_code, 0);
 	free_all(command);
 	return ((return_code >> 8) & 0xFF);
 }

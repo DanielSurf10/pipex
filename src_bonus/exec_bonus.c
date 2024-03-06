@@ -6,13 +6,13 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 16:06:23 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/06 12:52:22 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/06 18:58:22 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-static void	close_pipes(t_command command, int cmd_num)
+void	close_pipes(t_command command, int cmd_num)
 {
 	int	i;
 

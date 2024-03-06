@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/19 12:56:26 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 12:34:59 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/06 18:25:26 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -485,8 +485,16 @@ int	main(int argc, char *argv[], char *envp[])
 
 	while (i < (command.num_cmds - 1))
 	{
-		waitpid(command.pid[i], NULL, 0);
 		close_pipe(command.pipes[i]);
+		// waitpid(command.pid[i], NULL, 0);
+		i++;
+	}
+
+	i = 0;
+	while (i < (command.num_cmds - 1))
+	{
+		waitpid(command.pid[i], NULL, 0);
+		// close_pipe(command.pipes[i]);
 		i++;
 	}
 
