@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 16:06:23 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 23:32:30 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/06 00:35:15 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ static void	change_input_and_output(t_command command, int type, int cmd_num)
 		set_dup2(command.pipes[cmd_num - 1].fd_pipe[READ], command.fd_file_out);
 }
 
-void	error_message(char *cmd, int *return_code)
+static void	error_message(char *cmd, int *return_code)
 {
 	if (!cmd || access(cmd, F_OK) != 0)
 	{

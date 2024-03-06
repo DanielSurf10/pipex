@@ -6,13 +6,13 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 17:12:50 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 23:36:36 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/06 00:34:48 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-static void	init(t_command *command, int argc, char *argv[], char *envp[])
+static void	init(t_command *command, char *argv[], char *envp[])
 {
 	command->i = 1;
 	if (command->fd_file_in < 0)
@@ -20,14 +20,13 @@ static void	init(t_command *command, int argc, char *argv[], char *envp[])
 	if (command->fd_file_out < 0)
 		perror("Invalid output file");
 	command->path = get_path_variables(envp);
-	command->num_cmds = argc - 3;
 	command->argv = argv;
 	command->envp = envp;
 	command->pid = malloc(sizeof(int) * (command->num_cmds));
 	command->pipes = malloc(sizeof(t_pipe) * (command->num_cmds - 1));
 }
 
-void	exec_commands(t_command *command, int relative_command)
+static void	exec_commands(t_command *command, int relative_command)
 {
 	pipe(command->pipes[0].fd_pipe);
 	command->pid[0] = fork();
@@ -45,10 +44,10 @@ void	exec_commands(t_command *command, int relative_command)
 	}
 	command->pid[command->num_cmds - 1] = fork();
 	if (command->pid[command->num_cmds - 1] == 0)
-		exec_process(*command, LAST, command->num_cmds - 1, relative_command);
+		exec_process(*command, LAST, command->i, relative_command);
 }
 
-void	pre_init(t_command *command, int argc, char *argv[], int *relative)
+static void	pre_init(t_command *command, int argc, char *argv[], int *relative)
 {
 	if (argc < 5 || (ft_strncmp(argv[1], "here_doc", -1) == 0 && argc < 6))
 	{
@@ -65,6 +64,7 @@ void	pre_init(t_command *command, int argc, char *argv[], int *relative)
 		command->fd_file_in = get_from_here_doc(argv[2]);
 		command->fd_file_out = open(argv[argc - 1],
 			O_WRONLY | O_CREAT | O_APPEND, 0644);
+		command->num_cmds = argc - 4;
 	}
 	else
 	{
@@ -72,6 +72,7 @@ void	pre_init(t_command *command, int argc, char *argv[], int *relative)
 		command->fd_file_in = open(argv[1], O_RDONLY);
 		command->fd_file_out = open(argv[argc - 1],
 			O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		command->num_cmds = argc - 3;
 	}
 }
 
@@ -82,7 +83,7 @@ int	main(int argc, char *argv[], char *envp[])
 	t_command	command;
 
 	pre_init(&command, argc, argv, &relative_command);
-	init(&command, argc, argv, envp);
+	init(&command, argv, envp);
 	exec_commands(&command, relative_command);
 	if (command.fd_file_in != -1)
 		close(command.fd_file_in);

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   utils_bonus.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 12:46:41 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/05 18:29:27 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/06 00:50:45 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 void	close_pipe(t_pipe pipe_to_close)
 {
-	close(pipe_to_close.fd_pipe[0]);
-	close(pipe_to_close.fd_pipe[1]);
+	close(pipe_to_close.fd_pipe[READ]);
+	close(pipe_to_close.fd_pipe[WRITE]);
 }
 
 void	set_dup2(int fd_in, int fd_out)
