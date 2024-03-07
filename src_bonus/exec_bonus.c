@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 16:06:23 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/06 18:58:22 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/07 16:28:29 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,17 +68,18 @@ void	exec_process(t_command command, int type, int cmd_num, int relative)
 	{
 		args = ft_split(command.argv[relative], ' ');
 		cmd = expand_path(args[0], command.path);
-		change_input_and_output(command, type, cmd_num);
-		close_pipes(command, cmd_num);
 		if (cmd && access(cmd, F_OK | X_OK) == 0)
+		{
+			change_input_and_output(command, type, cmd_num);
+			close_pipes(command, cmd_num);
 			execve(cmd, args, command.envp);
+		}
 		ft_putstr_fd(args[0], 2);
 		error_message(cmd, &return_code);
 		free(cmd);
 		ft_free_split(args);
 	}
-	else
-		close_pipes(command, cmd_num);
+	close_pipes(command, cmd_num);
 	free_all(command);
 	exit(return_code);
 }
