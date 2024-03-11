@@ -6,7 +6,7 @@
 #    By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/10/10 19:29:07 by danbarbo          #+#    #+#              #
-#    Updated: 2024/02/27 09:50:08 by danbarbo         ###   ########.fr        #
+#    Updated: 2024/03/11 15:15:29 by danbarbo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -54,25 +54,9 @@ SRC	= ${addprefix src/, \
 		}
 OBJ	= ${SRC:src/%.c=obj/%.o}
 
-SRC_BONUS	= ${addprefix src/, \
-					ft_lstadd_back_bonus.c \
-					ft_lstadd_front_bonus.c \
-					ft_lstclear_bonus.c \
-					ft_lstdelone_bonus.c \
-					ft_lstiter_bonus.c \
-					ft_lstlast_bonus.c \
-					ft_lstmap_bonus.c \
-					ft_lstnew_bonus.c \
-					ft_lstsize_bonus.c \
-				}
-OBJ_BONUS	= ${SRC_BONUS:src/%.c=obj/%.o}
-
 all: ${NAME}
 ${NAME}: ${OBJ}
 	@ar rcs ${NAME} ${OBJ}
-
-bonus: ${OBJ_BONUS}
-	@ar rcs ${NAME} ${OBJ_BONUS}
 
 obj/%.o: src/%.c
 	@mkdir -p obj
@@ -88,6 +72,5 @@ fclean: clean
 	@printf "Deleting ${NAME}\n"
 
 re: fclean all
-rebonus: fclean bonus
 
-.PHONY: all bonus clean fclean re rebonus
+.PHONY: all bonus clean fclean re

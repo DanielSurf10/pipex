@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/26 16:06:23 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/07 16:28:29 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:32:57 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,12 +34,13 @@ void	close_pipes(t_command command, int cmd_num)
 static void	change_input_and_output(t_command command, int type, int cmd_num)
 {
 	if (type == FIRST)
-		set_dup2(command.fd_file_in, command.pipes[cmd_num].fd_pipe[WRITE]);
+		set_dup2(command.fd_file_in, command.pipes[cmd_num].fd_pipe[WRITE_FD]);
 	else if (type == MID)
-		set_dup2(command.pipes[cmd_num - 1].fd_pipe[READ],
-			command.pipes[cmd_num].fd_pipe[WRITE]);
+		set_dup2(command.pipes[cmd_num - 1].fd_pipe[READ_FD],
+			command.pipes[cmd_num].fd_pipe[WRITE_FD]);
 	else if (type == LAST)
-		set_dup2(command.pipes[cmd_num - 1].fd_pipe[READ], command.fd_file_out);
+		set_dup2(command.pipes[cmd_num - 1].fd_pipe[READ_FD],
+			command.fd_file_out);
 }
 
 static void	error_message(char *cmd, int *return_code)

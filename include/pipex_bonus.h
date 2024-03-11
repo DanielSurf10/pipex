@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/11 20:44:08 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/06 18:58:38 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:55:09 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@
 
 enum e_fd
 {
-	READ = 0,
-	WRITE
+	READ_FD = 0,
+	WRITE_FD
 };
 
 enum e_process
@@ -34,6 +34,14 @@ enum e_process
 	FIRST = 0,
 	MID,
 	LAST
+};
+
+enum e_status
+{
+	FAIL = -1,
+	READ,
+	BUILD_STRING,
+	FINISH
 };
 
 // structs
@@ -62,6 +70,12 @@ typedef struct s_command
 	t_path	path;
 }	t_command;
 
+typedef struct s_list
+{
+	char			content;
+	struct s_list	*next;
+}	t_list;
+
 // Functions
 
 // Process
@@ -79,5 +93,10 @@ int		get_from_here_doc(char *delimiter);
 void	close_pipe(t_pipe pipe_to_close);
 void	set_dup2(int fd_in, int fd_out);
 void	free_all(t_command command);
+char	*get_next_line(int fd);
+int		ft_lstadd_back(t_list **lst, char c);
+void	ft_lstclear(t_list **lst);
+void	ft_lstclear(t_list **lst);
+int		ft_lst_next_line_size(t_list *lst);
 
 #endif

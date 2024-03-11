@@ -6,7 +6,7 @@
 #    By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/12/27 15:54:27 by danbarbo          #+#    #+#              #
-#    Updated: 2024/03/06 11:53:06 by danbarbo         ###   ########.fr        #
+#    Updated: 2024/03/11 15:28:40 by danbarbo         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,8 @@ OBJS	:= ${SRCS:src/%.c=obj/%.o}
 
 SRCS_B	:= src_bonus/exec_bonus.c src_bonus/here_doc_bonus.c \
 			src_bonus/main_bonus.c src_bonus/path_bonus.c \
-			src_bonus/utils_bonus.c
+			src_bonus/utils_bonus.c src_bonus/get_next_line.c \
+			src_bonus/get_next_line_utils_bonus.c
 OBJS_B	:= ${SRCS_B:src_bonus/%.c=obj/%.o}
 
 all: ${NAME}

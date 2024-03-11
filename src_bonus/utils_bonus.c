@@ -6,7 +6,7 @@
 /*   By: danbarbo <danbarbo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/02/24 12:46:41 by danbarbo          #+#    #+#             */
-/*   Updated: 2024/03/06 00:50:45 by danbarbo         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:20:20 by danbarbo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 void	close_pipe(t_pipe pipe_to_close)
 {
-	close(pipe_to_close.fd_pipe[READ]);
-	close(pipe_to_close.fd_pipe[WRITE]);
+	close(pipe_to_close.fd_pipe[READ_FD]);
+	close(pipe_to_close.fd_pipe[WRITE_FD]);
 }
 
 void	set_dup2(int fd_in, int fd_out)
